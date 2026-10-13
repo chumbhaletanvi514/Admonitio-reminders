@@ -27,13 +27,13 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 700;
             color: var(--text-secondary);
             background: var(--bg-card);
             border: 1px solid var(--border);
-            padding: 10px 18px;
-            border-radius: var(--radius-md);
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
             text-decoration: none;
             transition: all 0.2s;
@@ -53,78 +53,83 @@
             gap: 24px;
         }
         .issue-left-meta h2 {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 800;
             color: var(--text-main);
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
-        .issue-left-meta p { font-size: 13px; color: var(--text-secondary); }
+        .issue-left-meta p { font-size: 15px; color: var(--text-secondary); }
         .issue-badge-group { display: flex; gap: 10px; align-items: center; }
 
         /* 4-STEPS GRID */
         .steps-container {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 18px;
         }
         .steps-header-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
-        .steps-header-bar h3 { font-size: 18px; font-weight: 800; }
+        .steps-header-bar h3 { font-size: 20px; font-weight: 800; }
         .step-progress-pill {
             background: var(--primary-50);
             border: 1px solid var(--primary-200);
             color: var(--primary-dark);
-            padding: 6px 14px;
+            padding: 8px 16px;
             border-radius: var(--radius-pill);
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 700;
         }
 
         .steps-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
+            gap: 18px;
         }
 
         .step-card {
             background: var(--bg-card);
-            border: 2px solid var(--border);
+            border: 1.5px solid var(--border);
             border-radius: var(--radius-xl);
-            padding: 22px 20px;
+            padding: 24px 20px;
             box-shadow: var(--shadow-card);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 260px;
+            min-height: 280px;
             position: relative;
             transition: all 0.25s ease;
         }
         .step-card:hover {
-            border-color: var(--primary-200);
             transform: translateY(-2px);
+            box-shadow: var(--shadow-float);
         }
 
-        /* COMPLETED STATE = GREEN */
+        /* COMPLETED STATE: LIGHT GREEN BACKGROUND & GREEN ACCENTS */
         .step-card.completed {
-            border-color: #10B981;
-            background: #F0FDF4;
+            background: #F0FDF4 !important;
+            border-color: #86EFAC !important;
         }
         .step-card.completed .step-number-tag {
-            background: #10B981;
-            color: #FFFFFF;
+            background: #10B981 !important;
+            color: #FFFFFF !important;
+        }
+        .step-card.completed .step-status-indicator {
+            color: #059669 !important;
+            font-weight: 800;
         }
         .step-card.completed .btn-step-action {
-            background: #10B981;
-            color: #FFFFFF;
+            background: #10B981 !important;
+            border-color: #10B981 !important;
+            color: #FFFFFF !important;
         }
 
         .step-card-top {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
         }
         .step-card-head-row {
             display: flex;
@@ -134,34 +139,39 @@
         .step-number-tag {
             background: var(--primary-50);
             color: var(--primary);
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 800;
-            padding: 4px 10px;
+            padding: 5px 12px;
             border-radius: var(--radius-pill);
             text-transform: uppercase;
         }
         .step-status-indicator {
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 700;
             color: var(--text-muted);
         }
-        .step-card.completed .step-status-indicator {
-            color: #059669;
-        }
 
-        .step-icon { font-size: 28px; }
-        .step-title { font-size: 16px; font-weight: 800; color: var(--text-main); }
-        .step-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+        .step-icon { font-size: 32px; }
+        .step-title { 
+            font-size: 18px; 
+            font-weight: 800; 
+            color: var(--text-main); 
+        }
+        .step-desc { 
+            font-size: 14px; 
+            color: var(--text-secondary); 
+            line-height: 1.5; 
+        }
 
         .btn-step-action {
             margin-top: 18px;
             width: 100%;
-            height: 44px;
-            border-radius: var(--radius-md);
+            height: 48px;
+            border-radius: var(--radius-sm);
             border: 1px solid var(--border);
             background: #FFFFFF;
             color: var(--primary);
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 700;
             cursor: pointer;
             display: flex;
@@ -214,7 +224,7 @@
         }
         .btn-modal-leave {
             height: 48px;
-            border-radius: var(--radius-md);
+            border-radius: var(--radius-sm);
             border: 1.5px solid var(--border);
             background: #FFFFFF;
             color: var(--text-secondary);
@@ -232,7 +242,7 @@
 
         .btn-modal-continue {
             height: 48px;
-            border-radius: var(--radius-md);
+            border-radius: var(--radius-sm);
             border: none;
             background: var(--primary-gradient);
             color: #FFFFFF;
@@ -240,54 +250,33 @@
             font-weight: 700;
             cursor: pointer;
             font-family: inherit;
-            box-shadow: var(--accent-glow);
         }
 
-        /* PROFILE MODAL */
-        .profile-form-group {
-            text-align: left;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .profile-form-group label {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: var(--text-muted);
-        }
-        .profile-input {
-            padding: 12px 14px;
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius-sm);
-            font-size: 14px;
-            font-family: inherit;
-            outline: none;
-        }
-        .profile-input:focus { border-color: var(--primary); }
+        @media (max-width: 1024px) { .steps-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 650px) { .steps-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-    <!-- NAVBAR -->
+    <!-- NAVBAR WITH LOGO AND CIRCULAR INITIALS PROFILE -->
     <nav class="dash-navbar">
         <div class="dash-brand">
-            <div class="dash-logo-icon">
-                <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><polyline points="9 12 11 14 15 10"/></svg>
-            </div>
+            <img src="/images/logo.jpeg" alt="Admonitio Logo" class="dash-logo-img" onerror="this.style.display='none'">
             <div class="dash-brand-name">Admo<span>nitio</span></div>
             <div class="dash-brand-divider"></div>
-            <div class="dash-brand-label">Sequential Action Pipeline</div>
+            <div class="dash-brand-label">Action Pipeline</div>
         </div>
         
         <div class="dash-nav-right">
-            <!-- Clicking coordinator pill opens profile settings modal -->
-            <div class="dash-coordinator-pill" onclick="openProfileModal()" style="cursor: pointer;" title="Edit notification email and password">
-                <div class="coordinator-avatar" id="coordAvatar">AK</div>
-                <div class="coordinator-info">
-                    <div class="coord-name" id="coordName">Ashok Kumar</div>
-                    <div class="coord-role" id="coordEmail">ashok.maintenance@college.edu ⚙️</div>
-                </div>
+            <!-- Hidden fallback elements to guarantee zero JS null errors -->
+            <div style="display:none;">
+                <span id="coordName"></span>
+                <span id="coordEmail"></span>
+            </div>
+
+            <!-- Profile Avatar Only (Circular Initials) -->
+            <div class="coordinator-avatar-btn" id="coordAvatar" onclick="openProfileModal()" title="Profile & Settings">
+                AK
             </div>
             <button class="dash-logout-btn" onclick="logout()" title="Sign Out">
                 <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -314,7 +303,7 @@
                     <p id="ticketDetailSubtitle">Observed Symptom: Loading...</p>
                 </div>
                 <div class="issue-badge-group">
-                    <span class="device-health-label" id="severityBadge" style="background:var(--warning-light); color:#D97706; padding:8px 16px; font-size:12px;">Medium Impact</span>
+                    <span class="device-health-label" id="severityBadge" style="background:var(--warning-light); color:#D97706; padding:8px 16px; font-size:13px;">Medium Impact</span>
                 </div>
             </div>
 
@@ -323,7 +312,6 @@
                 <div class="steps-header-bar">
                     <div>
                         <h3>Sequential Administrative Actions</h3>
-                        <p style="font-size:13px; color:var(--text-muted); margin-top:2px;">Complete all 4 records to eliminate reminder dispatches.</p>
                     </div>
                 </div>
 
@@ -399,7 +387,7 @@
         </div>
     </main>
 
-    <!-- PROMPT MODAL (Triggered when any step completes) -->
+    <!-- PROMPT MODAL -->
     <div class="modal-overlay" id="stepChoiceModal">
         <div class="prompt-modal-box">
             <div class="prompt-modal-icon">✅</div>
@@ -408,11 +396,9 @@
                 You have finished this step. Would you like to leave the process here or continue with the remaining forms?
             </p>
             <div class="modal-actions-row">
-                <!-- Left: Leave process here -->
                 <button class="btn-modal-leave" onclick="handleLeaveProcess()">
                     Leave process till here
                 </button>
-                <!-- Right: Go ahead -->
                 <button class="btn-modal-continue" onclick="handleGoAhead()">
                     Go Ahead &rarr;
                 </button>
@@ -420,7 +406,7 @@
         </div>
     </div>
 
-    <!-- PROFILE & EMAIL SETTINGS MODAL -->
+    <!-- PROFILE MODAL -->
     <div class="modal-overlay" id="profileSettingsModal">
         <div class="prompt-modal-box" style="text-align: left;">
             <h3 style="margin-bottom: 4px;">Coordinator Profile Settings</h3>

@@ -6,7 +6,7 @@
     --primary-50: #EFF6FF;
     --primary-100: #DBEAFE;
     --primary-200: #BFDBFE;
-    --primary-gradient: linear-gradient(135deg, #2563EB 0%, #1D4ED8 50%, #1E40AF 100%);
+    --primary-gradient: linear-gradient(135deg, #1E40AF 0%, #1D4ED8 50%, #2563EB 100%);
     --accent-glow: 0 10px 30px -5px rgba(37, 99, 235, 0.35);
 
     --danger: #EF4444;
@@ -22,7 +22,7 @@
     --text-muted: #94A3B8;
     --border: #E2E8F0;
 
-    --radius-lg: 18px;
+    --radius-lg: 16px;
     --radius-sm: 10px;
     --radius-pill: 9999px;
     --shadow-float: 0 20px 40px -8px rgba(15, 23, 42, 0.12);
@@ -36,109 +36,95 @@ body {
     display: flex;
 }
 
+/* 50 / 50 SCREEN SPLIT */
 .login-split {
     display: flex;
     width: 100%;
     min-height: 100vh;
 }
 
+/* LEFT 50%: HERO */
 .hero-panel {
-    flex: 1;
+    flex: 1 1 50%;
+    width: 50%;
     background: var(--primary-gradient);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 60px 48px;
+    padding: 60px 56px;
 }
 
 .hero-content {
-    max-width: 420px;
+    max-width: 480px;
+    width: 100%;
 }
 
 .hero-brand {
     display: flex;
     align-items: center;
-    gap: 14px;
-    margin-bottom: 48px;
+    gap: 16px;
+    margin-bottom: 36px;
 }
 
-.hero-logo-icon {
-    width: 48px;
-    height: 48px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.hero-logo-icon svg {
-    width: 26px;
-    height: 26px;
-    stroke: #FFFFFF;
-    fill: none;
-    stroke-width: 2.2;
+.hero-logo-img {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    background: #FFFFFF;
+    padding: 4px;
+    object-fit: contain;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
 }
 
 .hero-brand-name {
-    font-size: 24px;
+    font-size: 36px; /* Increased font size for Admonitio prominence */
     font-weight: 800;
     color: #FFFFFF;
+    letter-spacing: -0.8px;
+    line-height: 1;
 }
-.hero-brand-name span { opacity: 0.7; }
+.hero-brand-name span { opacity: 0.85; }
 
 .hero-title {
-    font-size: 38px;
+    font-size: 34px;
     font-weight: 800;
     color: #FFFFFF;
-    line-height: 1.15;
+    line-height: 1.2;
     margin-bottom: 16px;
+    letter-spacing: -0.5px;
 }
 
 .hero-subtitle {
-    font-size: 16px;
-    color: rgba(255, 255, 255, 0.8);
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.88);
     line-height: 1.6;
 }
 
+/* RIGHT 50%: FORM */
 .form-panel {
-    width: 520px;
-    flex-shrink: 0;
+    flex: 1 1 50%;
+    width: 50%;
     background: var(--bg-card);
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
     padding: 60px 56px;
     border-left: 1px solid var(--border);
 }
 
 .form-panel-inner {
-    max-width: 400px;
+    max-width: 420px;
     width: 100%;
-    margin: 0 auto;
 }
-
-.admin-portal-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--primary-50);
-    border: 1px solid var(--primary-200);
-    color: var(--primary);
-    padding: 6px 14px;
-    border-radius: var(--radius-pill);
-    font-size: 12px;
-    font-weight: 700;
-    margin-bottom: 28px;
-}
-.admin-portal-badge svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
 
 .form-heading {
-    font-size: 26px;
+    font-size: 28px;
     font-weight: 800;
     color: var(--text-main);
-    margin-bottom: 6px;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
 }
 
 .form-subheading {
@@ -157,6 +143,7 @@ body {
     color: var(--text-secondary);
     margin-bottom: 8px;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .input-wrapper {
@@ -166,6 +153,7 @@ body {
     border: 1.5px solid var(--border);
     border-radius: var(--radius-sm);
     position: relative;
+    transition: all 0.2s ease;
 }
 .input-wrapper:focus-within {
     border-color: var(--primary);
@@ -177,17 +165,9 @@ body {
     background: var(--danger-light);
 }
 
-.input-prefix {
-    padding-left: 14px;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--primary);
-    user-select: none;
-}
-
 .login-input {
     width: 100%;
-    padding: 13px 14px;
+    padding: 14px 16px;
     border: none;
     background: transparent;
     font-size: 14px;
@@ -195,6 +175,7 @@ body {
     outline: none;
     font-family: inherit;
 }
+.login-input::placeholder { color: var(--text-muted); }
 
 .toggle-pw-btn {
     position: absolute;
@@ -210,10 +191,11 @@ body {
     justify-content: center;
 }
 .toggle-pw-btn svg { width: 18px; height: 18px; stroke: var(--text-muted); fill: none; stroke-width: 2; }
+.toggle-pw-btn:hover svg { stroke: var(--text-secondary); }
 
 .login-btn-cta {
     width: 100%;
-    height: 52px;
+    height: 50px;
     background: var(--primary-gradient);
     border: none;
     border-radius: var(--radius-lg);
@@ -229,9 +211,9 @@ body {
     font-family: inherit;
     margin-top: 24px;
     margin-bottom: 16px;
-    transition: transform 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
-.login-btn-cta:hover { transform: translateY(-2px); }
+.login-btn-cta:hover { transform: translateY(-2px); box-shadow: 0 14px 30px -4px rgba(37, 99, 235, 0.45); }
 .login-btn-cta:disabled { background: #CBD5E1; cursor: not-allowed; box-shadow: none; transform: none; }
 .login-btn-cta svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.4; }
 
@@ -268,3 +250,13 @@ body {
 }
 .toast-bubble.show { transform: translateX(-50%) translateY(0); }
 .toast-bubble svg { width: 16px; height: 16px; stroke: #38BDF8; fill: none; stroke-width: 2.2; }
+
+/* RESPONSIVE STACK ON MOBILE */
+@media (max-width: 900px) {
+    .login-split { flex-direction: column; }
+    .hero-panel, .form-panel { flex: none; width: 100%; }
+    .hero-panel { padding: 40px 24px; }
+    .form-panel { padding: 48px 24px; border-left: none; }
+    .hero-brand-name { font-size: 28px; }
+    .hero-title { font-size: 26px; }
+}

@@ -8,12 +8,18 @@ if (!token || !coordDataStr) {
 let coordinator = JSON.parse(coordDataStr || '{}');
 
 function updateCoordinatorDisplay() {
-    document.getElementById('coordName').textContent = coordinator.name || 'Coordinator';
+    const nameEl = document.getElementById('coordName');
+    const emailEl = document.getElementById('coordEmail');
+    const avatarEl = document.getElementById('coordAvatar');
+
+    if (nameEl) nameEl.textContent = coordinator.name || 'Coordinator';
     const email = coordinator.notificationEmail || coordinator.username || 'ashok.maintenance@college.edu';
-    document.getElementById('coordEmail').textContent = `${email} ⚙️`;
-    document.getElementById('coordAvatar').textContent = coordinator.name 
-        ? coordinator.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() 
-        : 'AK';
+    if (emailEl) emailEl.textContent = `${email} ⚙️`;
+    if (avatarEl) {
+        avatarEl.textContent = coordinator.name 
+            ? coordinator.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() 
+            : 'AK';
+    }
 }
 updateCoordinatorDisplay();
 
@@ -64,24 +70,23 @@ function updateStepsUI() {
         const card = document.getElementById(`card-step-${stepNum}`);
         const statusText = document.getElementById(`status-step-${stepNum}`);
 
-        if (completedSteps.includes(stepNum)) {
-            card.classList.add('completed');
-            statusText.textContent = 'Completed ✓';
-        } else {
-            card.classList.remove('completed');
-            statusText.textContent = 'Pending';
+        if (card) {
+            if (completedSteps.includes(stepNum)) {
+                card.classList.add('completed');
+                if (statusText) statusText.textContent = 'Completed ✓';
+            } else {
+                card.classList.remove('completed');
+                if (statusText) statusText.textContent = 'Pending';
+            }
         }
     });
 }
 
-// When a coordinator clicks any of the 4 step buttons:
 async function handleStepOpen(stepNumber, dummyUrl) {
-    // 1. Open the form link in a new tab
     window.open(dummyUrl, '_blank');
 
     if (!currentTicket) return;
 
-    // 2. Mark this step completed in the backend
     try {
         const res = await fetch('/api/devices/step-complete', {
             method: 'POST',
@@ -99,8 +104,6 @@ async function handleStepOpen(stepNumber, dummyUrl) {
         if (data.success) {
             completedSteps = data.completedSteps;
             updateStepsUI();
-
-            // 3. Show popup modal asking: Leave Here vs. Go Ahead
             showStepChoiceModal(stepNumber);
         }
     } catch (err) {
@@ -123,20 +126,15 @@ function showStepChoiceModal(stepNumber) {
     document.getElementById('stepChoiceModal').classList.add('active');
 }
 
-// Left Modal Button: "Leave the process till here"
 function handleLeaveProcess() {
     document.getElementById('stepChoiceModal').classList.remove('active');
-    // Returns to dashboard overview
     window.location.href = '/dashboard.html';
 }
 
-// Right Modal Button: "Go Ahead"
 function handleGoAhead() {
     document.getElementById('stepChoiceModal').classList.remove('active');
-    // Stays on page so they can click other step cards
 }
 
-// PROFILE SETTINGS MODAL LOGIC
 function openProfileModal() {
     document.getElementById('editEmailInput').value = coordinator.notificationEmail || coordinator.username || '';
     document.getElementById('editPasswordInput').value = '';

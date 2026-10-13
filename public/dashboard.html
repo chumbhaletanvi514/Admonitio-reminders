@@ -17,23 +17,24 @@
     <!-- Top Navbar -->
     <nav class="dash-navbar">
         <div class="dash-brand">
-            <div class="dash-logo-icon">
-                <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><polyline points="9 12 11 14 15 10"/></svg>
-            </div>
+            <img src="/images/logo.jpeg" alt="Admonitio Logo" class="dash-logo-img" onerror="this.style.display='none'">
             <div class="dash-brand-name">Admo<span>nitio</span></div>
             <div class="dash-brand-divider"></div>
-            <div class="dash-brand-label" id="categoryBadge">Water Cooler Admin</div>
+            <div class="dash-brand-label" id="categoryBadge">Admin Dashboard</div>
         </div>
         
         <div class="dash-nav-right">
-            <!-- Clicking coordinator badge opens profile modal -->
-            <div class="dash-coordinator-pill" onclick="openProfileModal()" style="cursor: pointer;" title="Edit notification email and password">
-                <div class="coordinator-avatar" id="coordAvatar">AK</div>
-                <div class="coordinator-info">
-                    <div class="coord-name" id="coordName">Ashok Kumar</div>
-                    <div class="coord-role" id="coordEmail">ashok.maintenance@college.edu ⚙️</div>
-                </div>
+            <!-- Square QR Badges shortcut -->
+            <a href="/qr-codes" class="btn-qr-square" title="View QR Badges">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                <span>QR Badges</span>
+            </a>
+
+            <!-- Profile Avatar Only (Circular Initials) -->
+            <div class="coordinator-avatar-btn" id="coordAvatar" onclick="openProfileModal()" title="Profile & Settings">
+                AK
             </div>
+
             <button class="dash-logout-btn" onclick="logout()" title="Sign Out">
                 <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
             </button>
@@ -43,62 +44,47 @@
     <!-- Main Content -->
     <main class="dash-body">
         <div class="dash-welcome-row">
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <button class="dash-date-badge" onclick="triggerManualReminderScan()" style="cursor: pointer; border-color: var(--primary-200); color: var(--primary);" title="Manually trigger email reminders for presentation">
-                    🔔 Run Reminder Scan Now
-                </button>
-                <a href="/qr-codes" class="dash-date-badge" style="text-decoration: none; color: var(--text-main); font-weight: 700;">
-                    📱 View QR Badges &rarr;
-                </a>
-                <div class="dash-date-badge">
-                    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    <span id="currentDateText">Today</span>
-                </div>
-            </div>
             <div class="dash-welcome-text">
                 <h1>Overview</h1>
-                <p>Monitor assigned water cooler dispenser units and recent complaints.</p>
             </div>
-            <div class="dash-date-badge">
-                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                <span id="currentDateText">Today</span>
+            
+            <div class="welcome-actions-group">
+                <button class="dash-date-badge btn-reminder-trigger" onclick="triggerManualReminderScan()" title="Manually trigger reminder scan">
+                    🔔 Run Reminder Scan
+                </button>
+                <div class="dash-date-badge">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span id="currentDateText"></span>
+                </div>
             </div>
         </div>
 
-        <!-- 4 Summary Stats (Responsive Grid) -->
+        <!-- 4 Summary Stats (Emoji on Left, Centered Metric & Label) -->
         <div class="dash-stats-row">
             <div class="stat-card">
-                <div class="stat-card-header">
-                    <div class="stat-icon-box blue">💧</div>
-                </div>
-                <div>
+                <div class="stat-icon-box blue">💧</div>
+                <div class="stat-content-center">
                     <div class="stat-value" id="statTotalCoolers">0</div>
                     <div class="stat-label">Assigned Coolers</div>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-card-header">
-                    <div class="stat-icon-box red">⚠️</div>
-                </div>
-                <div>
+                <div class="stat-icon-box red">⚠️</div>
+                <div class="stat-content-center">
                     <div class="stat-value" id="statActiveTickets">0</div>
                     <div class="stat-label">Active Tickets</div>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-card-header">
-                    <div class="stat-icon-box yellow">🛠️</div>
-                </div>
-                <div>
+                <div class="stat-icon-box yellow">🛠️</div>
+                <div class="stat-content-center">
                     <div class="stat-value" id="statInMaintenance">0</div>
                     <div class="stat-label">In Maintenance</div>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-card-header">
-                    <div class="stat-icon-box green">✓</div>
-                </div>
-                <div>
+                <div class="stat-icon-box green">✓</div>
+                <div class="stat-content-center">
                     <div class="stat-value" id="statResolvedTickets">0</div>
                     <div class="stat-label">Resolved Tickets</div>
                 </div>
@@ -109,13 +95,12 @@
         <div class="section-title-bar">
             <div>
                 <h2>Assigned Devices</h2>
-                <p>Water Coolers in your assigned sector</p>
             </div>
             <div class="device-count-badge" id="deviceCountBadge">0 Devices Found</div>
         </div>
 
         <div class="device-cards-grid" id="devicesContainer">
-            <!-- Dynamically populated from backend -->
+            <!-- Dynamically populated from JS -->
         </div>
     </main>
 

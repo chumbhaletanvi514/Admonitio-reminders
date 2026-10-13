@@ -11,15 +11,13 @@
 </head>
 <body>
 
-    <!-- TOP NAVIGATION (Matches Coordinator Navbar) -->
+    <!-- TOP NAVIGATION -->
     <header class="app-navbar">
         <div class="nav-left">
-            <div class="brand-logo-icon">
-                <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><polyline points="9 12 11 14 15 10"/></svg>
-            </div>
+            <img src="/images/logo.jpeg" alt="Admonitio Logo" class="brand-logo-img" onerror="this.style.display='none'">
             <div class="brand-name">Admo<span>nitio</span></div>
             <div class="brand-divider"></div>
-            <div class="brand-label">Campus Maintenance · Issue Desk</div>
+            <div class="brand-label">Issue Desk</div>
         </div>
 
         <div class="nav-right">
@@ -27,9 +25,6 @@
                 <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                 <span>Live QR Session</span>
             </div>
-            <a href="/login" class="coordinator-link-btn" title="Coordinator Login">
-                Coordinator Portal &rarr;
-            </a>
         </div>
     </header>
 
@@ -37,12 +32,6 @@
     <section class="device-hero-banner">
         <div class="hero-container">
             <div class="hero-main-info">
-                <div class="hero-tag-strip">
-                    <span class="device-type-badge">💧 Water Cooler Dispenser</span>
-                    <span class="device-live-badge" id="deviceHealthPill">
-                        <span class="pulse-dot"></span> Online & Operational
-                    </span>
-                </div>
                 <h1 class="hero-device-name" id="deviceName">Water Cooler — A3</h1>
                 <div class="hero-location-line">
                     <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -67,7 +56,7 @@
         </div>
     </section>
 
-    <!-- MAIN DESKTOP WORKSPACE (Full Viewport Centered Grid) -->
+    <!-- MAIN DESKTOP WORKSPACE -->
     <main class="page-container">
 
         <!-- VIEW 1: ACTIVE REPORTING VIEW -->
@@ -85,6 +74,7 @@
                             </div>
                         </div>
 
+                        <!-- 2-COLUMN BALANCED CATEGORY GRID -->
                         <div class="category-grid">
                             <div class="category-tile selected" onclick="selectCategory('cooling', this)">
                                 <div class="cat-icon-box">❄️</div>
@@ -160,7 +150,7 @@
                     </div>
                 </div>
 
-                <!-- RIGHT COLUMN: SEVERITY, METADATA & SUBMIT PANEL -->
+                <!-- RIGHT COLUMN: SEVERITY & SUBMIT PANEL -->
                 <div class="reporting-right-col">
                     <div class="action-sidebar-card">
                         <div class="sidebar-header">
@@ -192,30 +182,10 @@
                             </div>
                         </div>
 
-                        <div class="sidebar-divider"></div>
-
-                        <!-- PAST REPORTS DIRECT CALLOUT -->
-                        <div class="history-callout-card" onclick="switchView('view-history')">
-                            <div class="h-callout-left">
-                                <div class="h-icon">📋</div>
-                                <div>
-                                    <h4>Device Maintenance Log</h4>
-                                    <p id="pastTicketCountText">Loading history...</p>
-                                </div>
-                            </div>
-                            <span class="h-arrow">&rarr;</span>
-                        </div>
-
-                        <div class="sidebar-divider"></div>
-
-                        <div class="ticket-guarantee-note">
-                            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                            <p>Once registered, this ticket updates the <strong>Water Cooler Coordinator's</strong> live board instantly.</p>
-                        </div>
-
+                        <!-- CHANGED LABEL TO "Submit Complaint" -->
                         <button class="submit-ticket-btn" id="submitBtn" onclick="submitTicket()">
                             <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                            Submit Complaint Ticket
+                            Submit Complaint
                         </button>
                     </div>
                 </div>
@@ -223,26 +193,7 @@
             </div>
         </div>
 
-        <!-- VIEW 2: FULL-WIDTH RECENT REPORTS & HISTORY -->
-        <div class="screen-view" id="view-history">
-            <div class="history-view-layout">
-                <div class="history-view-header">
-                    <div>
-                        <button class="back-link-btn" onclick="switchView('view-report')">
-                            &larr; Back to Issue Registration
-                        </button>
-                        <h2>Past Service & Complaint Log</h2>
-                        <p>Complete maintenance trail for water dispenser <strong id="historyDeviceCode">WC-A3-042</strong></p>
-                    </div>
-                </div>
-
-                <div class="history-tickets-grid" id="historyContainer">
-                    <!-- Populated via report.js -->
-                </div>
-            </div>
-        </div>
-
-        <!-- VIEW 3: FULL RECEIPT CONFIRMATION -->
+        <!-- VIEW 2: FULL RECEIPT CONFIRMATION -->
         <div class="screen-view" id="view-confirmation">
             <div class="confirmation-layout">
                 <div class="confirmation-modal-card">
@@ -278,12 +229,10 @@
                         </div>
                     </div>
 
+                    <!-- PROMINENT BUTTON TO RETURN TO MAIN ISSUE DESK -->
                     <div class="conf-actions-row">
                         <button class="btn-conf-primary" onclick="switchView('view-report')">
-                            Return to Device Page
-                        </button>
-                        <button class="btn-conf-secondary" onclick="switchView('view-history')">
-                            View All Device Tickets
+                            &larr; Back to Issue Desk
                         </button>
                     </div>
                 </div>
@@ -291,6 +240,13 @@
         </div>
 
     </main>
+
+    <!-- Hidden fallback elements to ensure zero JS console null errors -->
+    <div style="display:none;">
+        <span id="pastTicketCountText"></span>
+        <span id="historyDeviceCode"></span>
+        <div id="historyContainer"></div>
+    </div>
 
     <script src="/js/report.js"></script>
 </body>
