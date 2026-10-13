@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admonitio — Ticket Resolution</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <style>
+        .detail-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .back-nav-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 10px 18px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-back:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            background: var(--bg-card);
+        }
+        .btn-back svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.2; }
+
+        .active-issue-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--danger-border);
+            overflow: hidden;
+            position: relative;
+        }
+        .active-issue-card.in-progress {
+            border-color: var(--warning-border);
+        }
+        .active-issue-card.all-clear {
+            border-color: var(--border);
+        }
+
+        .issue-card-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--danger-light);
+        }
+        .issue-card-header.in-progress {
+            background: var(--warning-light);
+        }
+        .issue-card-header.all-clear {
+            background: var(--bg-canvas);
+        }
+
+        .issue-title-group h2 {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.4px;
+            color: #991B1B;
+            margin-bottom: 4px;
+        }
+        .issue-card-header.in-progress .issue-title-group h2 {
+            color: #92400E;
+        }
+        .issue-card-header.all-clear .issue-title-group h2 {
+            color: var(--text-main);
+        }
+
+        .issue-meta-strip {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .issue-card-body {
+            padding: 32px;
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 32px;
+        }
+
+        .issue-info-pane h4 {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .issue-quote-box {
+            background: var(--bg-canvas);
+            border: 1px solid var(--border);
+            padding: 18px 20px;
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--text-main);
+            font-weight: 500;
+            margin-bottom: 24px;
+        }
+
+        .action-pane {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .action-dropdown-btn {
+            width: 100%;
+            background: var(--primary-gradient);
+            color: #FFF;
+            border: none;
+            padding: 14px 20px;
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--accent-glow);
+            font-family: inherit;
+        }
+        .action-dropdown-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.4; }
+
+        .action-options-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: var(--bg-canvas);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 10px;
+        }
+
+        .action-item-btn {
+            background: #FFF;
+            border: 1px solid var(--border);
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            text-align: left;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .action-item-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-50);
+        }
+        .action-item-btn.btn-resolve {
+            color: #059669;
+            border-color: var(--success-border);
+            background: var(--success-light);
+        }
+        .action-item-btn.btn-resolve:hover {
+            background: #D1FAE5;
+        }
+
+        .history-section-wrapper {
+            margin-top: 12px;
+        }
+
+        .history-list-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .history-record-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 18px 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .toast-msg {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: #0F172A;
+            color: #FFF;
+            padding: 12px 24px;
+            border-radius: var(--radius-pill);
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: var(--shadow-float);
+            z-index: 100;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .toast-msg.show { transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+
+    <!-- Toast -->
+    <div class="toast-msg" id="toastMsg">Action updated!</div>
+
+    <!-- Top Navbar -->
+    <nav class="dash-navbar">
+        <div class="dash-brand">
+            <div class="dash-logo-icon">
+                <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><polyline points="9 12 11 14 15 10"/></svg>
+            </div>
+            <div class="dash-brand-name">Admo<span>nitio</span></div>
+            <div class="dash-brand-divider"></div>
+            <div class="dash-brand-label">Ticket Resolution</div>
+        </div>
+        
+        <div class="dash-nav-right">
+            <div class="dash-coordinator-pill">
+                <div class="coordinator-avatar" id="coordAvatar">AK</div>
+                <div class="coordinator-info">
+                    <div class="coord-name" id="coordName">Ashok Kumar</div>
+                    <div class="coord-role">Water Cooler Admin</div>
+                </div>
+            </div>
+            <button class="dash-logout-btn" onclick="logout()" title="Sign Out">
+                <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            </button>
+        </div>
+    </nav>
+
+    <main class="dash-body">
+        <div class="detail-container">
+            
+            <div class="back-nav-row">
+                <a href="/dashboard.html" class="btn-back">
+                    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                    Back to Overview Dashboard
+                </a>
+                <span class="device-count-badge" id="activeStatusPill">Status: Normal</span>
+            </div>
+
+            <!-- Active Issue Resolution Card -->
+            <div class="active-issue-card" id="issueCard">
+                <div class="issue-card-header" id="issueHeader">
+                    <div class="issue-title-group">
+                        <h2 id="ticketTitle">Ticket #TKT-LOADING</h2>
+                        <div class="issue-meta-strip">
+                            <span id="ticketDate">Reported: Today</span>
+                            <span>·</span>
+                            <span id="ticketLocation">Block A</span>
+                        </div>
+                    </div>
+                    <div class="device-health-label" id="ticketSeverityBadge" style="background:#991B1B; color:#FFF; padding:6px 14px; font-size:12px;">Urgent</div>
+                </div>
+
+                <div class="issue-card-body">
+                    <!-- Left: Details -->
+                    <div class="issue-info-pane">
+                        <h4>Reported Symptom Specification</h4>
+                        <div class="issue-quote-box" id="ticketSpecBox">
+                            Loading ticket details...
+                        </div>
+
+                        <h4>Device Snapshot</h4>
+                        <div class="device-card-specs" style="background: var(--bg-canvas); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+                            <div class="mini-stat"><div class="ms-label">Model</div><div class="ms-value" id="devModel">-</div></div>
+                            <div class="mini-stat"><div class="ms-label">Filter Life</div><div class="ms-value" id="devFilter">-</div></div>
+                            <div class="mini-stat"><div class="ms-label">Device Code</div><div class="ms-value" id="devCode">-</div></div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Resolution Actions -->
+                    <div class="action-pane">
+                        <h4>Resolution Workflow</h4>
+                        <div class="action-options-menu" id="actionMenu">
+                            <button class="action-item-btn" onclick="executeAction('Assign Campus Technician', 'IN_PROGRESS')">
+                                🛠️ Assign Campus Technician
+                            </button>
+                            <button class="action-item-btn" onclick="executeAction('Request Vendor Support', 'IN_PROGRESS')">
+                                📞 Request Vendor Support
+                            </button>
+                            <button class="action-item-btn btn-resolve" onclick="executeAction('Mark Complaint Resolved', 'RESOLVED')">
+                                ✓ Mark Complaint Resolved
+                            </button>
+                        </div>
+
+                        <div class="reminder-notice" style="display:flex; gap:10px; background:var(--primary-50); border:1px solid var(--primary-200); padding:12px; border-radius:var(--radius-md); margin-top:6px;">
+                            <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--primary);fill:none;stroke-width:2;flex-shrink:0;margin-top:2px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            <p style="font-size:12px; color:var(--primary-dark); line-height:1.4;">Taking an action sets recurring maintenance reminders until the cooler is confirmed operational.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Full Device History Trail -->
+            <div class="history-section-wrapper">
+                <div class="section-title-bar">
+                    <div>
+                        <h2>Device Repair & Maintenance Trail</h2>
+                        <p id="historySubtitle">Complete activity log for this unit</p>
+                    </div>
+                </div>
+
+                <div class="history-list-grid" id="historyList">
+                    <!-- Populated via ticket-detail.js -->
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="/js/ticket-detail.js"></script>
+</body>
+</html>

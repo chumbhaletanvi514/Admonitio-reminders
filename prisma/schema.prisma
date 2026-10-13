@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum DeviceCategory {
+  WATER_COOLER
+  STATIONARY
+  PRINTER
+}
+
+enum TicketStatus {
+  OPEN
+  UNDER_REVIEW
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model Coordinator {
+  id           String         @id @default(uuid())
+  username     String         @unique
+  password     String
+  name         String
+  category     DeviceCategory @default(WATER_COOLER)
+  roleTitle    String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  tickets      Ticket[]
+}
+
+model Device {
+  id           String         @id @default(uuid())
+  deviceCode   String         @unique
+  name         String
+  category     DeviceCategory @default(WATER_COOLER)
+  location     String
+  model        String         @default("V-80L")
+  filterHealth Int            @default(64)
+  lastService  DateTime       @default(now())
+  createdAt    DateTime       @default(now())
+  tickets      Ticket[]
+}
+
+model Ticket {
+  id             String       @id @default(uuid())
+  ticketNumber   String       @unique
+  category       String
+  specification  String
+  severity       Severity     @default(MEDIUM)
+  status         TicketStatus @default(OPEN)
+  reporterName   String?
+  reporterPhone  String?
+  deviceId       String
+  device         Device       @relation(fields: [deviceId], references: [id])
+  coordinatorId  String?
+  coordinator    Coordinator? @relation(fields: [coordinatorId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}

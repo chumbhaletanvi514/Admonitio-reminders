@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admonitio — Water Cooler Issue Reporting</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/student.css">
+</head>
+<body>
+
+    <!-- TOP NAVIGATION (Matches Coordinator Navbar) -->
+    <header class="app-navbar">
+        <div class="nav-left">
+            <div class="brand-logo-icon">
+                <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><polyline points="9 12 11 14 15 10"/></svg>
+            </div>
+            <div class="brand-name">Admo<span>nitio</span></div>
+            <div class="brand-divider"></div>
+            <div class="brand-label">Campus Maintenance · Issue Desk</div>
+        </div>
+
+        <div class="nav-right">
+            <div class="qr-status-pill">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <span>Live QR Session</span>
+            </div>
+            <a href="/login" class="coordinator-link-btn" title="Coordinator Login">
+                Coordinator Portal &rarr;
+            </a>
+        </div>
+    </header>
+
+    <!-- FULL-WIDTH BRANDED DEVICE HERO -->
+    <section class="device-hero-banner">
+        <div class="hero-container">
+            <div class="hero-main-info">
+                <div class="hero-tag-strip">
+                    <span class="device-type-badge">💧 Water Cooler Dispenser</span>
+                    <span class="device-live-badge" id="deviceHealthPill">
+                        <span class="pulse-dot"></span> Online & Operational
+                    </span>
+                </div>
+                <h1 class="hero-device-name" id="deviceName">Water Cooler — A3</h1>
+                <div class="hero-location-line">
+                    <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <span id="deviceLocation">Engineering Block A · 3rd Floor (Opposite Lab 302)</span>
+                </div>
+            </div>
+
+            <div class="hero-metrics-strip">
+                <div class="hero-metric-tile">
+                    <span class="hm-label">Device Code</span>
+                    <span class="hm-val" id="deviceCodeVal">WC-A3-042</span>
+                </div>
+                <div class="hero-metric-tile">
+                    <span class="hm-label">Dispense Capacity</span>
+                    <span class="hm-val">80 Litres/Hr</span>
+                </div>
+                <div class="hero-metric-tile">
+                    <span class="hm-label">Filter Health</span>
+                    <span class="hm-val" id="deviceFilterVal">64%</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MAIN DESKTOP WORKSPACE (Full Viewport Centered Grid) -->
+    <main class="page-container">
+
+        <!-- VIEW 1: ACTIVE REPORTING VIEW -->
+        <div class="screen-view active" id="view-report">
+            <div class="reporting-layout">
+
+                <!-- LEFT COLUMN: ISSUE SELECTION WORKFLOW -->
+                <div class="reporting-left-col">
+                    <div class="step-card">
+                        <div class="step-header">
+                            <span class="step-badge">Step 1</span>
+                            <div>
+                                <h2>Select Issue Category</h2>
+                                <p>Select the physical or functional symptom observed on this unit.</p>
+                            </div>
+                        </div>
+
+                        <div class="category-grid">
+                            <div class="category-tile selected" onclick="selectCategory('cooling', this)">
+                                <div class="cat-icon-box">❄️</div>
+                                <div class="cat-text-group">
+                                    <h3>Cooling Fault</h3>
+                                    <span>Water warm or room temperature</span>
+                                </div>
+                                <div class="radio-indicator"></div>
+                            </div>
+
+                            <div class="category-tile" onclick="selectCategory('leakage', this)">
+                                <div class="cat-icon-box">💧</div>
+                                <div class="cat-text-group">
+                                    <h3>Water Leakage</h3>
+                                    <span>Puddle around base or leaky tap</span>
+                                </div>
+                                <div class="radio-indicator"></div>
+                            </div>
+
+                            <div class="category-tile" onclick="selectCategory('power', this)">
+                                <div class="cat-icon-box">⚡</div>
+                                <div class="cat-text-group">
+                                    <h3>Power & Electrical</h3>
+                                    <span>Lights off, tripping breaker, or noise</span>
+                                </div>
+                                <div class="radio-indicator"></div>
+                            </div>
+
+                            <div class="category-tile" onclick="selectCategory('dispenser', this)">
+                                <div class="cat-icon-box">🛑</div>
+                                <div class="cat-text-group">
+                                    <h3>No Water Flow</h3>
+                                    <span>Push button stuck or dry supply</span>
+                                </div>
+                                <div class="radio-indicator"></div>
+                            </div>
+
+                            <div class="category-tile" onclick="selectCategory('quality', this)">
+                                <div class="cat-icon-box">🚰</div>
+                                <div class="cat-text-group">
+                                    <h3>Water Quality</h3>
+                                    <span>Foul smell, discoloration, or taste</span>
+                                </div>
+                                <div class="radio-indicator"></div>
+                            </div>
+
+                            <div class="category-tile" onclick="selectCategory('physical', this)">
+                                <div class="cat-icon-box">🛠️</div>
+                                <div class="cat-text-group">
+                                    <h3>Physical Damage</h3>
+                                    <span>Broken tap, missing tray, body damage</span>
+                                </div>
+                                <div class="radio-indicator"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-header">
+                            <span class="step-badge">Step 2</span>
+                            <div class="step-title-with-badge">
+                                <div>
+                                    <h2>Precise Symptom Specification</h2>
+                                    <p>Select the exact issue symptom for technician dispatch.</p>
+                                </div>
+                                <span class="active-category-pill" id="currentCategoryBadge">Cooling Fault</span>
+                            </div>
+                        </div>
+
+                        <div class="spec-list" id="specChipsContainer">
+                            <!-- Populated dynamically via report.js -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN: SEVERITY, METADATA & SUBMIT PANEL -->
+                <div class="reporting-right-col">
+                    <div class="action-sidebar-card">
+                        <div class="sidebar-header">
+                            <h3>Impact Severity</h3>
+                            <p>How critically does this affect building students?</p>
+                        </div>
+
+                        <div class="severity-selector-strip">
+                            <div class="severity-btn low" onclick="selectSeverity('low', this)">
+                                <span class="sev-dot"></span>
+                                <div class="sev-label-block">
+                                    <strong>Low</strong>
+                                    <small>Minor issue</small>
+                                </div>
+                            </div>
+                            <div class="severity-btn medium selected" onclick="selectSeverity('medium', this)">
+                                <span class="sev-dot"></span>
+                                <div class="sev-label-block">
+                                    <strong>Medium</strong>
+                                    <small>Partial fault</small>
+                                </div>
+                            </div>
+                            <div class="severity-btn high" onclick="selectSeverity('high', this)">
+                                <span class="sev-dot"></span>
+                                <div class="sev-label-block">
+                                    <strong>High</strong>
+                                    <small>Out of service</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sidebar-divider"></div>
+
+                        <!-- PAST REPORTS DIRECT CALLOUT -->
+                        <div class="history-callout-card" onclick="switchView('view-history')">
+                            <div class="h-callout-left">
+                                <div class="h-icon">📋</div>
+                                <div>
+                                    <h4>Device Maintenance Log</h4>
+                                    <p id="pastTicketCountText">Loading history...</p>
+                                </div>
+                            </div>
+                            <span class="h-arrow">&rarr;</span>
+                        </div>
+
+                        <div class="sidebar-divider"></div>
+
+                        <div class="ticket-guarantee-note">
+                            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            <p>Once registered, this ticket updates the <strong>Water Cooler Coordinator's</strong> live board instantly.</p>
+                        </div>
+
+                        <button class="submit-ticket-btn" id="submitBtn" onclick="submitTicket()">
+                            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                            Submit Complaint Ticket
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- VIEW 2: FULL-WIDTH RECENT REPORTS & HISTORY -->
+        <div class="screen-view" id="view-history">
+            <div class="history-view-layout">
+                <div class="history-view-header">
+                    <div>
+                        <button class="back-link-btn" onclick="switchView('view-report')">
+                            &larr; Back to Issue Registration
+                        </button>
+                        <h2>Past Service & Complaint Log</h2>
+                        <p>Complete maintenance trail for water dispenser <strong id="historyDeviceCode">WC-A3-042</strong></p>
+                    </div>
+                </div>
+
+                <div class="history-tickets-grid" id="historyContainer">
+                    <!-- Populated via report.js -->
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: FULL RECEIPT CONFIRMATION -->
+        <div class="screen-view" id="view-confirmation">
+            <div class="confirmation-layout">
+                <div class="confirmation-modal-card">
+                    <div class="success-icon-badge">
+                        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <h2>Complaint Successfully Logged!</h2>
+                    <p class="conf-subtitle">Your issue has been routed into the Estate Maintenance Pipeline.</p>
+
+                    <div class="receipt-summary-box">
+                        <div class="receipt-row-header">
+                            <div>
+                                <span class="r-caption">TICKET IDENTIFIER</span>
+                                <h3 id="receiptTicketId">TKT-20261013-000</h3>
+                            </div>
+                            <span class="r-badge-open">Status: Open</span>
+                        </div>
+
+                        <div class="receipt-details-grid">
+                            <div>
+                                <span class="r-caption">TARGET DEVICE</span>
+                                <strong id="receiptDeviceLabel">Water Cooler A3</strong>
+                            </div>
+                            <div>
+                                <span class="r-caption">ISSUE CATEGORY</span>
+                                <strong id="receiptCategory">Cooling Fault</strong>
+                            </div>
+                        </div>
+
+                        <div class="receipt-spec-box">
+                            <span class="r-caption">OBSERVED SPECIFICATION</span>
+                            <p id="receiptSpecText">Water is room temperature / warm</p>
+                        </div>
+                    </div>
+
+                    <div class="conf-actions-row">
+                        <button class="btn-conf-primary" onclick="switchView('view-report')">
+                            Return to Device Page
+                        </button>
+                        <button class="btn-conf-secondary" onclick="switchView('view-history')">
+                            View All Device Tickets
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="/js/report.js"></script>
+</body>
+</html>
