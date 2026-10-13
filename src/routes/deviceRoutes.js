@@ -4,9 +4,11 @@ const authMiddleware = require('../middlewares/authMiddleware');
 const deviceController = require('../controllers/deviceController');
 const ticketController = require('../controllers/ticketController');
 
-// All coordinator dashboard endpoints protected by JWT authMiddleware
 router.get('/dashboard', authMiddleware, deviceController.getDashboardData);
 router.get('/detail/:deviceCode', authMiddleware, ticketController.getCoordinatorDeviceDetail);
-router.post('/action', authMiddleware, ticketController.updateTicketAction);
+router.post('/step-complete', authMiddleware, ticketController.completeStepAction);
+router.post('/verify-resolution', authMiddleware, ticketController.verifyFinalResolution);
+router.post('/profile-update', authMiddleware, ticketController.updateCoordinatorProfile);
+router.get('/qr-codes', authMiddleware, deviceController.getDeviceQRCodes);
 
 module.exports = router;

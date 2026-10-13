@@ -6,11 +6,13 @@ const prisma = new PrismaClient();
 async function main() {
   const hashedPassword = await bcrypt.hash('admin@123', 10);
 
+  // Seed coordinator with college email as username
   const coordinator = await prisma.coordinator.upsert({
-    where: { username: '2024-COORD-07' },
+    where: { username: 'ashok.maintenance@college.edu' },
     update: {},
     create: {
-      username: '2024-COORD-07',
+      username: 'ashok.maintenance@college.edu',
+      notificationEmail: 'ashok.maintenance@college.edu',
       password: hashedPassword,
       name: 'Ashok Kumar',
       category: 'WATER_COOLER',
@@ -53,8 +55,8 @@ async function main() {
     });
   }
 
-  console.log('Seeded Coordinator:', coordinator.username, `(${coordinator.category})`);
-  console.log('Seeded Devices for category WATER_COOLER successfully.');
+  console.log('Seeded Coordinator:', coordinator.username);
+  console.log('Seeded Devices successfully.');
 }
 
 main()

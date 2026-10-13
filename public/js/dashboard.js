@@ -6,14 +6,26 @@ if (!token || !coordDataStr) {
     window.location.href = '/login.html';
 }
 
-const coordinator = JSON.parse(coordDataStr || '{}');
+let coordinator = JSON.parse(coordDataStr || '{}');
 
 // 2. Set Coordinator Details in Top Bar
-document.getElementById('coordName').textContent = coordinator.name || 'Coordinator';
-document.getElementById('coordRole').textContent = coordinator.roleTitle || 'Water Cooler Admin';
-document.getElementById('coordAvatar').textContent = coordinator.name 
-    ? coordinator.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() 
-    : 'AK';
+function updateCoordinatorHeader() {
+    const nameEl = document.getElementById('coordName');
+    const emailEl = document.getElementById('coordEmail');
+    const avatarEl = document.getElementById('coordAvatar');
+
+    if (nameEl) nameEl.textContent = coordinator.name || 'Coordinator';
+
+    const displayEmail = coordinator.notificationEmail || coordinator.username || 'ashok.maintenance@college.edu';
+    if (emailEl) emailEl.textContent = `${displayEmail} ⚙️`;
+
+    if (avatarEl) {
+        avatarEl.textContent = coordinator.name 
+            ? coordinator.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() 
+            : 'AK';
+    }
+}
+updateCoordinatorHeader();
 
 document.getElementById('currentDateText').textContent = new Date().toLocaleDateString('en-US', {
     month: 'short',
@@ -59,9 +71,9 @@ function renderDevices(devices) {
     container.innerHTML = '';
 
     devices.forEach(device => {
-        const activeCount = device.tickets.filter(t => t.status === 'OPEN' || t.status === 'UNDER_REVIEW').length;
+        const activeCount = device.tickets.filter(t => t.status === 'OPEN' || t.status === 'IN_PROGRESS').length;
         const resolvedCount = device.tickets.filter(t => t.status === 'RESOLVED').length;
-        const inMaintCount = device.tickets.filter(t => t.status === 'IN_PROGRESS').length;
+        const inMaintCount = device.tickets.filter(t => t.status === 'IN_PROGRESS' || t.status === 'STEPS_COMPLETED').length;
 
         let statusText = 'Online';
         let statusStyle = 'color: #34D399;';
@@ -111,11 +123,73 @@ function renderDevices(devices) {
     });
 }
 
+// 4. Profile Modal Handlers
+function openProfileModal() {
+    const currentMail = coordinator.notificationEmail || coordinator.username || '';
+    document.getElementById('editEmailInput').value = currentMail;
+    document.getElementById('editPasswordInput').value = '';
+    document.getElementById('profileSettingsModal').classList.add('active');
+}
+
+function closeProfileModal() {
+    document.getElementById('profileSettingsModal').classList.remove('active');
+}
+
+async function handleProfileSave(e) {
+    e.preventDefault();
+    const notificationEmail = document.getElementById('editEmailInput').value;
+    const newPassword = document.getElementById('editPasswordInput').value;
+
+    try {
+        const res = await fetch('/api/devices/profile-update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ notificationEmail, newPassword })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            coordinator = { ...coordinator, ...data.coordinator };
+            localStorage.setItem('coordinator_data', JSON.stringify(coordinator));
+            updateCoordinatorHeader();
+            closeProfileModal();
+            showToast('Profile settings saved successfully!');
+        } else {
+            alert(data.message || 'Update failed');
+        }
+    } catch (err) {
+        console.error('Error saving profile:', err);
+    }
+}
+
+function showToast(text) {
+    const toast = document.getElementById('dashToastBox');
+    toast.textContent = text;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
 function logout() {
     localStorage.removeItem('admonitio_token');
     localStorage.removeItem('coordinator_data');
     window.location.href = '/login.html';
 }
 
-// Initial load
+async function triggerManualReminderScan() {
+    showToast('Running reminder scan...');
+    try {
+        const res = await fetch('/api/reminders/trigger-now', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Reminder scan complete! Check console.');
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+// Initial fetch
 fetchDashboard();

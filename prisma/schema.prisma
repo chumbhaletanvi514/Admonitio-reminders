@@ -15,8 +15,8 @@ enum DeviceCategory {
 
 enum TicketStatus {
   OPEN
-  UNDER_REVIEW
   IN_PROGRESS
+  STEPS_COMPLETED
   RESOLVED
 }
 
@@ -28,7 +28,8 @@ enum Severity {
 
 model Coordinator {
   id           String         @id @default(uuid())
-  username     String         @unique
+  username     String         @unique // Default email address (e.g. coord@college.edu)
+  notificationEmail String?   // Custom email override if updated in profile
   password     String
   name         String
   category     DeviceCategory @default(WATER_COOLER)
@@ -52,18 +53,21 @@ model Device {
 }
 
 model Ticket {
-  id             String       @id @default(uuid())
-  ticketNumber   String       @unique
-  category       String
-  specification  String
-  severity       Severity     @default(MEDIUM)
-  status         TicketStatus @default(OPEN)
-  reporterName   String?
-  reporterPhone  String?
-  deviceId       String
-  device         Device       @relation(fields: [deviceId], references: [id])
-  coordinatorId  String?
-  coordinator    Coordinator? @relation(fields: [coordinatorId], references: [id])
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  id                String       @id @default(uuid())
+  ticketNumber      String       @unique
+  category          String
+  specification     String
+  severity          Severity     @default(MEDIUM)
+  status            TicketStatus @default(OPEN)
+  completedSteps    Int[]        @default([])  // Stores completed step numbers: e.g. [2, 3]
+  lastStepTimestamp DateTime     @default(now())
+  verifiedResolved  Boolean      @default(false)
+  reporterName      String?
+  reporterPhone     String?
+  deviceId          String
+  device            Device       @relation(fields: [deviceId], references: [id])
+  coordinatorId     String?
+  coordinator       Coordinator? @relation(fields: [coordinatorId], references: [id])
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 }

@@ -11,7 +11,10 @@
 </head>
 <body>
 
-    <!-- Navbar -->
+    <!-- Toast Notification -->
+    <div class="toast-bubble" id="dashToastBox">Profile updated</div>
+
+    <!-- Top Navbar -->
     <nav class="dash-navbar">
         <div class="dash-brand">
             <div class="dash-logo-icon">
@@ -23,11 +26,12 @@
         </div>
         
         <div class="dash-nav-right">
-            <div class="dash-coordinator-pill">
+            <!-- Clicking coordinator badge opens profile modal -->
+            <div class="dash-coordinator-pill" onclick="openProfileModal()" style="cursor: pointer;" title="Edit notification email and password">
                 <div class="coordinator-avatar" id="coordAvatar">AK</div>
                 <div class="coordinator-info">
                     <div class="coord-name" id="coordName">Ashok Kumar</div>
-                    <div class="coord-role" id="coordRole">Water Cooler Coordinator</div>
+                    <div class="coord-role" id="coordEmail">ashok.maintenance@college.edu ⚙️</div>
                 </div>
             </div>
             <button class="dash-logout-btn" onclick="logout()" title="Sign Out">
@@ -39,6 +43,18 @@
     <!-- Main Content -->
     <main class="dash-body">
         <div class="dash-welcome-row">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button class="dash-date-badge" onclick="triggerManualReminderScan()" style="cursor: pointer; border-color: var(--primary-200); color: var(--primary);" title="Manually trigger email reminders for presentation">
+                    🔔 Run Reminder Scan Now
+                </button>
+                <a href="/qr-codes" class="dash-date-badge" style="text-decoration: none; color: var(--text-main); font-weight: 700;">
+                    📱 View QR Badges &rarr;
+                </a>
+                <div class="dash-date-badge">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span id="currentDateText">Today</span>
+                </div>
+            </div>
             <div class="dash-welcome-text">
                 <h1>Overview</h1>
                 <p>Monitor assigned water cooler dispenser units and recent complaints.</p>
@@ -49,7 +65,7 @@
             </div>
         </div>
 
-        <!-- 4 Summary Stats -->
+        <!-- 4 Summary Stats (Responsive Grid) -->
         <div class="dash-stats-row">
             <div class="stat-card">
                 <div class="stat-card-header">
@@ -102,6 +118,36 @@
             <!-- Dynamically populated from backend -->
         </div>
     </main>
+
+    <!-- Coordinator Profile Settings Modal -->
+    <div class="modal-overlay" id="profileSettingsModal">
+        <div class="prompt-modal-box">
+            <h3>Coordinator Profile Settings</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+                Update the destination email for pending ticket reminders.
+            </p>
+
+            <form onsubmit="handleProfileSave(event)" style="display: flex; flex-direction: column; gap: 14px; text-align: left;">
+                <div class="profile-form-group">
+                    <label>Notification Email (Reminders Destination)</label>
+                    <input type="email" id="editEmailInput" class="profile-input" required>
+                </div>
+                <div class="profile-form-group">
+                    <label>New Password (Optional, leave blank to keep unchanged)</label>
+                    <input type="password" id="editPasswordInput" class="profile-input" placeholder="••••••••">
+                </div>
+
+                <div class="modal-actions-row" style="margin-top: 8px;">
+                    <button type="button" class="btn-modal-cancel" onclick="closeProfileModal()">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-modal-save">
+                        Save Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script src="/js/dashboard.js"></script>
 </body>

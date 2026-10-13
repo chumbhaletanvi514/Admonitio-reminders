@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admonitio — Device QR Codes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <style>
+        .qr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            width: 100%;
+        }
+        .qr-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 16px;
+        }
+        .qr-img-box {
+            background: #FFFFFF;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            border: 1.5px solid var(--border);
+            display: inline-block;
+        }
+        .qr-img-box img {
+            width: 200px;
+            height: 200px;
+            display: block;
+        }
+        .qr-card h3 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+        .qr-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .btn-download-qr {
+            width: 100%;
+            height: 42px;
+            background: var(--primary-gradient);
+            color: #FFFFFF;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: inherit;
+        }
+        @media print {
+            .dash-navbar, .back-nav-bar, .btn-download-qr {
+                display: none !important;
+            }
+            body, .dash-body {
+                background: #FFFFFF !important;
+                padding: 0 !important;
+            }
+            .qr-card {
+                box-shadow: none !important;
+                border: 1px solid #CCC !important;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="dash-navbar">
+        <div class="dash-brand">
+            <div class="dash-logo-icon">
+                <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><polyline points="9 12 11 14 15 10"/></svg>
+            </div>
+            <div class="dash-brand-name">Admo<span>nitio</span></div>
+            <div class="dash-brand-divider"></div>
+            <div class="dash-brand-label">Campus QR Dispatch</div>
+        </div>
+        <div class="dash-nav-right">
+            <button class="dash-date-badge" onclick="window.print()" style="cursor: pointer; border-color: var(--primary);">
+                🖨️ Print All QR Badges
+            </button>
+            <a href="/dashboard" class="dash-date-badge" style="text-decoration: none;">
+                &larr; Back to Dashboard
+            </a>
+        </div>
+    </nav>
+
+    <main class="dash-body">
+        <div class="dash-welcome-row">
+            <div class="dash-welcome-text">
+                <h1>Water Cooler QR Directory</h1>
+                <p>Deploy physical stickers onto units. Each code links directly to that device's fault reporting portal.</p>
+            </div>
+        </div>
+
+        <div class="qr-grid" id="qrContainer">
+            <p style="color: var(--text-muted);">Generating QR stickers...</p>
+        </div>
+    </main>
+
+    <script>
+        const token = localStorage.getItem('admonitio_token');
+        if (!token) window.location.href = '/login';
+
+        async function loadQRs() {
+            try {
+                const res = await fetch('/api/devices/qr-codes', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (!data.success) return;
+
+                const container = document.getElementById('qrContainer');
+                container.innerHTML = '';
+
+                data.devices.forEach(dev => {
+                    const card = document.createElement('div');
+                    card.className = 'qr-card';
+                    card.innerHTML = `
+                        <div class="qr-img-box">
+                            <img src="${dev.qrImage}" alt="QR for ${dev.name}">
+                        </div>
+                        <div>
+                            <h3>${dev.name} (${dev.deviceCode})</h3>
+                            <p>${dev.location}</p>
+                        </div>
+                        <a href="${dev.qrImage}" download="QR_${dev.deviceCode}.png" class="btn-download-qr">
+                            ⬇ Download PNG
+                        </a>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        loadQRs();
+    </script>
+</body>
+</html>
