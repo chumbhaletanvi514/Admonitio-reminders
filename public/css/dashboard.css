@@ -19,7 +19,7 @@
     --danger-light: #FEF2F2;
 
     --bg-page: #F8FAFC;
-    --bg-canvas: #F1F5F9;      /* Clean lighter gray */
+    --bg-canvas: #F1F5F9;
     --bg-card: #FFFFFF;
 
     --text-main: #0F172A;
@@ -134,7 +134,7 @@ body {
     color: var(--primary);
 }
 
-/* CIRCULAR PROFILE AVATAR ONLY */
+/* CIRCULAR PROFILE AVATAR */
 .coordinator-avatar-btn {
     width: 40px;
     height: 40px;
@@ -187,7 +187,7 @@ body {
     padding: 32px;
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    gap: 30px;
     max-width: 1400px;
     width: 100%;
     margin: 0 auto;
@@ -201,7 +201,7 @@ body {
     flex-wrap: wrap;
 }
 .dash-welcome-text h1 {
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 800;
     letter-spacing: -0.6px;
 }
@@ -243,38 +243,86 @@ body {
     background: var(--primary-50);
 }
 
-/* 4 STATS ROW */
-.dash-stats-row {
+/* ======================================================== */
+/* SPLIT TOP ROW: OVERVIEW (LEFT) + DIVIDER + PORTALS (RIGHT) */
+/* ======================================================== */
+.dash-split-top-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 16px;
-    width: 100%;
+    grid-template-columns: 340px 1px 1fr;
+    gap: 28px;
+    align-items: stretch;
+}
+
+/* MINIMAL VERTICAL DIVIDER LINE */
+.dash-v-divider {
+    width: 1px;
+    height: 100%;
+    background: var(--border);
+    border-radius: var(--radius-pill);
+    opacity: 0.85;
+}
+
+/* RESPONSIVE: HIDE OR CONVERT TO HORIZONTAL LINE ON SCREENS UNDER 1024px */
+@media (max-width: 1024px) {
+    .dash-split-top-row {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    .dash-v-divider {
+        width: 100%;
+        height: 1px;
+    }
+    .admin-portals-grid-2x2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.section-title-bar-compact {
+    margin-bottom: 12px;
+}
+.section-title-bar-compact h2 {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+/* VERTICAL OVERVIEW STACK */
+.overview-vertical-col {
+    display: flex;
+    flex-direction: column;
+}
+.vertical-stats-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: 100%;
+    justify-content: space-between;
 }
 
 .stat-card {
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    padding: 20px 22px;
+    padding: 16px 20px;
     box-shadow: var(--shadow-card);
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 16px;
+    flex: 1;
 }
 
 .stat-icon-box {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
+    font-size: 20px;
     flex-shrink: 0;
 }
 .stat-icon-box.blue { background: var(--primary-50); }
 .stat-icon-box.red { background: var(--danger-light); }
-.stat-icon-box.yellow { background: var(--warning-light); }
 .stat-icon-box.green { background: var(--success-light); }
 
 .stat-content-center {
@@ -285,14 +333,14 @@ body {
 }
 
 .stat-value {
-    font-size: 30px;
+    font-size: 26px;
     font-weight: 800;
     color: var(--text-main);
     line-height: 1.1;
 }
 
 .stat-label {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     color: var(--text-muted);
     text-transform: uppercase;
@@ -300,14 +348,77 @@ body {
     margin-top: 3px;
 }
 
-/* SECTION HEADER */
+/* PORTALS 2x2 GRID (BESIDE OVERVIEW) */
+.portals-beside-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-portals-grid-2x2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 14px;
+    height: 100%;
+}
+
+.portal-quick-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+    box-shadow: var(--shadow-card);
+    transition: all 0.2s ease;
+}
+.portal-quick-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary);
+    box-shadow: var(--shadow-float);
+}
+
+.portal-icon {
+    font-size: 24px;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: var(--bg-canvas);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.portal-info { flex: 1; }
+.portal-info h4 {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 2px;
+}
+.portal-info p {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+.portal-arrow {
+    font-size: 16px;
+    color: var(--primary);
+    font-weight: 800;
+}
+
+/* ======================================================== */
+/* ASSIGNED DEVICES SECTION                                 */
+/* ======================================================== */
 .section-title-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
     flex-wrap: wrap;
-    margin-top: 6px;
+    margin-top: 8px;
 }
 .section-title-bar h2 {
     font-size: 20px;
@@ -324,7 +435,7 @@ body {
     font-weight: 700;
 }
 
-/* DEVICE CARDS (LARGER STATS & VALUES) */
+/* DEVICE CARDS */
 .device-cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -361,7 +472,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    margin-bottom: 10px;
+    min-height: 24px;
+    margin-bottom: 8px;
 }
 .device-type-tag {
     display: none !important;
@@ -399,11 +511,11 @@ body {
     gap: 18px;
 }
 
-/* MINI STATS: LARGER FONTS & LIGHT GRAY BACKGROUND */
+/* MINI STATS: 2 COLUMNS (MODEL & CODE) */
 .device-card-specs {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
 }
 
 .mini-stat {
@@ -414,19 +526,19 @@ body {
     border: none !important;
 }
 .mini-stat .ms-label {
-    font-size: 12px;  /* Increased size */
+    font-size: 12px;
     font-weight: 700;
     color: var(--text-muted);
     text-transform: uppercase;
     margin-bottom: 4px;
 }
 .mini-stat .ms-value {
-    font-size: 16px;  /* Increased value size */
+    font-size: 16px;
     font-weight: 800;
     color: var(--text-main);
 }
 
-/* TICKET SUMMARY BAR: LARGER FONTS & LIGHT GRAY BACKGROUND */
+/* TICKET SUMMARY BAR */
 .device-ticket-summary {
     display: flex;
     align-items: center;
@@ -442,7 +554,7 @@ body {
     display: flex;
     align-items: center;
     gap: 16px;
-    font-size: 14px;  /* Increased font size */
+    font-size: 14px;
     font-weight: 800;
 }
 .tc-dot {
@@ -456,7 +568,7 @@ body {
 .tc-dot.resolved { background: var(--success); }
 
 .view-device-btn {
-    font-size: 15px;  /* Increased font size */
+    font-size: 15px;
     font-weight: 800;
     color: var(--primary);
     text-decoration: none;
@@ -570,19 +682,22 @@ body {
 }
 .toast-bubble.show { transform: translateX(-50%) translateY(0); }
 
-/* RESPONSIVE */
-@media (max-width: 900px) {
-    .dash-navbar { padding: 0 20px; }
-    .dash-body { padding: 24px 20px; }
-    .dash-stats-row { grid-template-columns: repeat(2, 1fr); }
-    .device-cards-grid { grid-template-columns: 1fr; }
+/* RESPONSIVE LAYOUT */
+@media (max-width: 1024px) {
+    .dash-split-top-row {
+        grid-template-columns: 1fr;
+    }
+    .admin-portals-grid-2x2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 650px) {
     .dash-navbar { padding: 0 16px; height: 60px; }
     .dash-brand-divider, .dash-brand-label { display: none; }
     .dash-body { padding: 16px; gap: 20px; }
-    .dash-welcome-text h1 { font-size: 24px; }
+    .dash-welcome-text h1 { font-size: 22px; }
     .welcome-actions-group { width: 100%; justify-content: space-between; }
-    .dash-stats-row { grid-template-columns: 1fr; }
+    .admin-portals-grid-2x2 { grid-template-columns: 1fr; }
+    .device-cards-grid { grid-template-columns: 1fr; }
 }

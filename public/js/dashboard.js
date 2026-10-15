@@ -46,10 +46,9 @@ async function fetchDashboard() {
 
         globalDevices = data.devices;
 
-        // Render Stats
+        // Render 3 Stats
         document.getElementById('statTotalCoolers').textContent = data.stats.totalDevices;
         document.getElementById('statActiveTickets').textContent = data.stats.activeTicketsCount;
-        document.getElementById('statInMaintenance').textContent = data.stats.inMaintenanceCount;
         document.getElementById('statResolvedTickets').textContent = data.stats.resolvedTicketsCount;
         document.getElementById('deviceCountBadge').textContent = `${data.devices.length} Devices Found`;
 
@@ -66,30 +65,17 @@ function renderDevices(devices) {
     container.innerHTML = '';
 
     devices.forEach(device => {
-        const activeCount = device.tickets.filter(t => t.status === 'OPEN' || t.status === 'IN_PROGRESS').length;
+        const activeCount = device.tickets.filter(t => t.status === 'OPEN' || t.status === 'IN_PROGRESS' || t.status === 'STEPS_COMPLETED').length;
         const resolvedCount = device.tickets.filter(t => t.status === 'RESOLVED').length;
-        const inMaintCount = device.tickets.filter(t => t.status === 'IN_PROGRESS' || t.status === 'STEPS_COMPLETED').length;
 
-        let statusText = 'Online';
-        let statusStyle = 'color: #34D399;';
-        let isCritical = false;
-
-        if (activeCount > 0) {
-            statusText = 'Issue Reported';
-            statusStyle = 'color: #FECACA;';
-            isCritical = true;
-        } else if (inMaintCount > 0 || device.filterHealth < 20) {
-            statusText = 'Maintenance';
-            statusStyle = 'color: #FBBF24;';
-        }
+        const hasActiveIssue = activeCount > 0;
 
         const card = document.createElement('div');
         card.className = 'device-card';
         card.innerHTML = `
-            <div class="device-card-top ${isCritical ? 'has-issue' : ''}">
+            <div class="device-card-top ${hasActiveIssue ? 'has-issue' : ''}">
                 <div class="device-card-top-row">
-                    <div class="device-type-tag">💧 Water Cooler</div>
-                    <div class="device-health-label" style="${statusStyle}">${statusText}</div>
+                    ${hasActiveIssue ? '<div class="device-health-label" style="color: #FECACA;">Issue Reported</div>' : ''}
                 </div>
                 <h3 class="device-card-name">${device.name}</h3>
                 <div class="device-card-location">
@@ -100,7 +86,6 @@ function renderDevices(devices) {
             <div class="device-card-body">
                 <div class="device-card-specs">
                     <div class="mini-stat"><div class="ms-label">Model</div><div class="ms-value">${device.model}</div></div>
-                    <div class="mini-stat"><div class="ms-label">Filter</div><div class="ms-value" style="${device.filterHealth < 20 ? 'color: var(--danger);' : ''}">${device.filterHealth}%</div></div>
                     <div class="mini-stat"><div class="ms-label">Code</div><div class="ms-value">${device.deviceCode}</div></div>
                 </div>
                 <div class="device-ticket-summary">
@@ -152,7 +137,7 @@ async function handleDirectIssueSubmit(e) {
         if (data.success) {
             closeDirectIssueModal();
             showToast(`Complaint logged for ${deviceCode}!`);
-            fetchDashboard(); // Refresh cards immediately
+            fetchDashboard();
         } else {
             alert(data.message || 'Failed to create complaint');
         }

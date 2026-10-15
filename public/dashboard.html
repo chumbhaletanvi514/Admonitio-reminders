@@ -8,60 +8,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/dashboard.css">
-    <style>
-        .admin-portals-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            width: 100%;
-        }
-        .portal-quick-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 18px 20px;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            text-decoration: none;
-            box-shadow: var(--shadow-card);
-            transition: all 0.2s ease;
-        }
-        .portal-quick-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--primary);
-            box-shadow: var(--shadow-float);
-        }
-        .portal-icon {
-            font-size: 26px;
-            width: 44px;
-            height: 44px;
-            border-radius: 10px;
-            background: var(--bg-canvas);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        .portal-info { flex: 1; }
-        .portal-info h4 {
-            font-size: 14px;
-            font-weight: 800;
-            color: var(--text-main);
-            margin-bottom: 2px;
-        }
-        .portal-info p {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-        .portal-arrow {
-            font-size: 16px;
-            color: var(--primary);
-            font-weight: 800;
-        }
-        @media (max-width: 1024px) { .admin-portals-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 600px) { .admin-portals-grid { grid-template-columns: 1fr; } }
-    </style>
 </head>
 <body>
 
@@ -97,9 +43,11 @@
 
     <!-- Main Content -->
     <main class="dash-body">
+        
+        <!-- TOP ACTIONS BAR -->
         <div class="dash-welcome-row">
             <div class="dash-welcome-text">
-                <h1>Overview</h1>
+                <h1> Overview</h1>
             </div>
             
             <div class="welcome-actions-group">
@@ -117,87 +65,94 @@
             </div>
         </div>
 
-        <!-- 4 Summary Stats -->
-        <div class="dash-stats-row">
-            <div class="stat-card">
-                <div class="stat-icon-box blue">💧</div>
-                <div class="stat-content-center">
-                    <div class="stat-value" id="statTotalCoolers">0</div>
-                    <div class="stat-label">Assigned Coolers</div>
+        <!-- SPLIT ROW: OVERVIEW (VERTICAL) + PORTALS (BESIDE IT) -->
+       <!-- SPLIT ROW: OVERVIEW (VERTICAL) + DIVIDER + PORTALS (BESIDE IT) -->
+        <div class="dash-split-top-row">
+            
+            <!-- LEFT COLUMN: OVERVIEW STATS (VERTICAL STACK) -->
+            <div class="overview-vertical-col">
+                <div class="section-title-bar-compact">
+                    <h2>Overview</h2>
+                </div>
+
+                <div class="vertical-stats-stack">
+                    <div class="stat-card">
+                        <div class="stat-icon-box blue">💧</div>
+                        <div class="stat-content-center">
+                            <div class="stat-value" id="statTotalCoolers">0</div>
+                            <div class="stat-label">Assigned Coolers</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon-box red">⚠️</div>
+                        <div class="stat-content-center">
+                            <div class="stat-value" id="statActiveTickets">0</div>
+                            <div class="stat-label">Active Tickets</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon-box green">✓</div>
+                        <div class="stat-content-center">
+                            <div class="stat-value" id="statResolvedTickets">0</div>
+                            <div class="stat-label">Resolved Tickets</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon-box red">⚠️</div>
-                <div class="stat-content-center">
-                    <div class="stat-value" id="statActiveTickets">0</div>
-                    <div class="stat-label">Active Tickets</div>
+
+            <!-- MINIMAL VERTICAL DIVIDER LINE -->
+            <div class="dash-v-divider"></div>
+
+            <!-- RIGHT COLUMN: ADMINISTRATIVE & FACILITY PORTALS (2x2 GRID) -->
+            <div class="portals-beside-col">
+                <div class="section-title-bar-compact">
+                    <h2>Administrative & Facility Portals</h2>
+                </div>
+
+                <div class="admin-portals-grid-2x2">
+                    <a href="https://docs.google.com/spreadsheets" target="_blank" class="portal-quick-card">
+                        <div class="portal-icon">📊</div>
+                        <div class="portal-info">
+                            <h4>Asset Register (Sheet)</h4>
+                            <p>Internal department log</p>
+                        </div>
+                        <span class="portal-arrow">&nearr;</span>
+                    </a>
+
+                    <a href="https://fms.college.edu/login" target="_blank" class="portal-quick-card">
+                        <div class="portal-icon">🏛️</div>
+                        <div class="portal-info">
+                            <h4>College FMS Portal</h4>
+                            <p>Official ERP facility tickets</p>
+                        </div>
+                        <span class="portal-arrow">&nearr;</span>
+                    </a>
+
+                    <a href="https://vendor.service.com" target="_blank" class="portal-quick-card">
+                        <div class="portal-icon">📞</div>
+                        <div class="portal-info">
+                            <h4>Vendor Support</h4>
+                            <p>Technician & parts dispatch</p>
+                        </div>
+                        <span class="portal-arrow">&nearr;</span>
+                    </a>
+
+                    <a href="https://maintenance.college.edu" target="_blank" class="portal-quick-card">
+                        <div class="portal-icon">📝</div>
+                        <div class="portal-info">
+                            <h4>Estate Ledger</h4>
+                            <p>Campus maintenance records</p>
+                        </div>
+                        <span class="portal-arrow">&nearr;</span>
+                    </a>
                 </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon-box yellow">🛠️</div>
-                <div class="stat-content-center">
-                    <div class="stat-value" id="statInMaintenance">0</div>
-                    <div class="stat-label">In Maintenance</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon-box green">✓</div>
-                <div class="stat-content-center">
-                    <div class="stat-value" id="statResolvedTickets">0</div>
-                    <div class="stat-label">Resolved Tickets</div>
-                </div>
-            </div>
+
         </div>
 
-        <!-- DIRECT ADMINISTRATIVE & FACILITY PORTALS -->
-        <div class="section-title-bar" style="margin-top: 10px;">
-            <div>
-                <h2>Administrative & Facility Portals</h2>
-            </div>
-            <span style="font-size: 13px; color: var(--text-muted); font-weight: 600;">
-                Direct external platform access
-            </span>
-        </div>
-
-        <div class="admin-portals-grid">
-            <a href="https://docs.google.com/spreadsheets" target="_blank" class="portal-quick-card">
-                <div class="portal-icon">📊</div>
-                <div class="portal-info">
-                    <h4>Asset Register (Sheet)</h4>
-                    <p>Internal department log</p>
-                </div>
-                <span class="portal-arrow">&nearr;</span>
-            </a>
-
-            <a href="https://fms.college.edu/login" target="_blank" class="portal-quick-card">
-                <div class="portal-icon">🏛️</div>
-                <div class="portal-info">
-                    <h4>College FMS Portal</h4>
-                    <p>Official ERP facility tickets</p>
-                </div>
-                <span class="portal-arrow">&nearr;</span>
-            </a>
-
-            <a href="https://vendor.service.com" target="_blank" class="portal-quick-card">
-                <div class="portal-icon">📞</div>
-                <div class="portal-info">
-                    <h4>Vendor Support</h4>
-                    <p>Technician & parts dispatch</p>
-                </div>
-                <span class="portal-arrow">&nearr;</span>
-            </a>
-
-            <a href="https://maintenance.college.edu" target="_blank" class="portal-quick-card">
-                <div class="portal-icon">📝</div>
-                <div class="portal-info">
-                    <h4>Estate Ledger</h4>
-                    <p>Campus maintenance records</p>
-                </div>
-                <span class="portal-arrow">&nearr;</span>
-            </a>
-        </div>
-
-        <!-- Devices Grid Section -->
+        <!-- FULL-WIDTH SECTION: ASSIGNED DEVICES -->
         <div class="section-title-bar">
             <div>
                 <h2>Assigned Devices</h2>
@@ -208,9 +163,10 @@
         <div class="device-cards-grid" id="devicesContainer">
             <!-- Dynamically populated from JS -->
         </div>
+
     </main>
 
-    <!-- DIRECT ISSUE CREATION MODAL (No QR needed) -->
+    <!-- DIRECT ISSUE CREATION MODAL -->
     <div class="modal-overlay" id="directIssueModal">
         <div class="prompt-modal-box">
             <h3>Raise Internal Maintenance Ticket</h3>
