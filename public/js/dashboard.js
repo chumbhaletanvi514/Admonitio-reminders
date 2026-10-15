@@ -3,22 +3,15 @@ const token = localStorage.getItem('admonitio_token');
 const coordDataStr = localStorage.getItem('coordinator_data');
 
 if (!token || !coordDataStr) {
-    window.location.href = '/login.html';
+    window.location.href = '/login';
 }
 
 let coordinator = JSON.parse(coordDataStr || '{}');
+let globalDevices = [];
 
 // 2. Set Coordinator Details in Top Bar
 function updateCoordinatorHeader() {
-    const nameEl = document.getElementById('coordName');
-    const emailEl = document.getElementById('coordEmail');
     const avatarEl = document.getElementById('coordAvatar');
-
-    if (nameEl) nameEl.textContent = coordinator.name || 'Coordinator';
-
-    const displayEmail = coordinator.notificationEmail || coordinator.username || 'ashok.maintenance@college.edu';
-    if (emailEl) emailEl.textContent = `${displayEmail} ⚙️`;
-
     if (avatarEl) {
         avatarEl.textContent = coordinator.name 
             ? coordinator.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() 
@@ -50,6 +43,8 @@ async function fetchDashboard() {
 
         const data = await response.json();
         if (!data.success) return;
+
+        globalDevices = data.devices;
 
         // Render Stats
         document.getElementById('statTotalCoolers').textContent = data.stats.totalDevices;
@@ -123,7 +118,51 @@ function renderDevices(devices) {
     });
 }
 
-// 4. Profile Modal Handlers
+// 4. Direct Internal Issue Modal Handlers (No QR scan needed)
+function openDirectIssueModal() {
+    const select = document.getElementById('directDeviceSelect');
+    if (select) {
+        select.innerHTML = globalDevices.map(d => `<option value="${d.deviceCode}">${d.name} (${d.deviceCode})</option>`).join('');
+    }
+    document.getElementById('directIssueModal').classList.add('active');
+}
+
+function closeDirectIssueModal() {
+    document.getElementById('directIssueModal').classList.remove('active');
+}
+
+async function handleDirectIssueSubmit(e) {
+    e.preventDefault();
+    const deviceCode = document.getElementById('directDeviceSelect').value;
+    const category = document.getElementById('directCategorySelect').value;
+    const specification = document.getElementById('directSpecInput').value.trim();
+    const severity = document.getElementById('directSeveritySelect').value;
+
+    try {
+        const res = await fetch('/api/devices/direct-complaint', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ deviceCode, category, specification, severity })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            closeDirectIssueModal();
+            showToast(`Complaint logged for ${deviceCode}!`);
+            fetchDashboard(); // Refresh cards immediately
+        } else {
+            alert(data.message || 'Failed to create complaint');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Server error creating complaint.');
+    }
+}
+
+// 5. Profile Modal Handlers
 function openProfileModal() {
     const currentMail = coordinator.notificationEmail || coordinator.username || '';
     document.getElementById('editEmailInput').value = currentMail;
@@ -175,7 +214,7 @@ function showToast(text) {
 function logout() {
     localStorage.removeItem('admonitio_token');
     localStorage.removeItem('coordinator_data');
-    window.location.href = '/login.html';
+    window.location.href = '/login';
 }
 
 async function triggerManualReminderScan() {

@@ -1,7 +1,7 @@
 const prisma = require('../config/db');
 const bcrypt = require('bcryptjs');
 
-// 1. Fetch public device information by device code (e.g., WC-A3-042)
+// 1. Fetch public device information by device code (for students)
 exports.getDeviceByCode = async (req, res) => {
   try {
     const { deviceCode } = req.params;
@@ -27,7 +27,7 @@ exports.getDeviceByCode = async (req, res) => {
   }
 };
 
-// 2. Submit a new complaint ticket
+// 2. Submit a new complaint ticket (student endpoint)
 exports.createTicket = async (req, res) => {
   try {
     const {
@@ -98,18 +98,18 @@ exports.getCoordinatorDeviceDetail = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Device not found.' });
     }
 
-    const activeTicket = device.tickets.find(
-      t => t.status === 'OPEN' || t.status === 'IN_PROGRESS' || t.status === 'STEPS_COMPLETED'
-    ) || null;
+    const allActiveTickets = device.tickets.filter(t => t.status !== 'RESOLVED');
+    const activeTicket = allActiveTickets[0] || null;
 
     return res.status(200).json({
       success: true,
       device,
       activeTicket,
-      history: device.tickets
+      allActiveTickets,
+      historyTickets: device.tickets
     });
   } catch (error) {
-    console.error('Error fetching coordinator detail:', error);
+    console.error('Error in getCoordinatorDeviceDetail:', error);
     return res.status(500).json({ success: false, message: 'Could not fetch device details.' });
   }
 };
@@ -117,36 +117,59 @@ exports.getCoordinatorDeviceDetail = async (req, res) => {
 // 4. Update Step Completion (Step 1, 2, 3, or 4)
 exports.completeStepAction = async (req, res) => {
   try {
-    const { ticketId, stepNumber } = req.body;
-    const coordinatorId = req.coordinator.id;
+    const { ticketId, stepNumber, deviceCode } = req.body;
+    const coordinatorId = req.coordinator ? req.coordinator.id : null;
 
-    if (!ticketId || !stepNumber) {
-      return res.status(400).json({ success: false, message: 'Ticket ID and Step Number are required.' });
+    if (!stepNumber) {
+      return res.status(400).json({ success: false, message: 'Step number is required.' });
     }
 
-    const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
+    let ticket = null;
+
+    // Direct UUID String lookup
+    if (ticketId && typeof ticketId === 'string' && ticketId.trim() !== '') {
+      ticket = await prisma.ticket.findUnique({
+        where: { id: ticketId.trim() }
+      }).catch(() => null);
+    }
+
+    // Fallback: If ticketId was missing or not found, locate active ticket by deviceCode
+    if (!ticket && deviceCode) {
+      const device = await prisma.device.findUnique({
+        where: { deviceCode: String(deviceCode) },
+        include: {
+          tickets: {
+            where: { status: { not: 'RESOLVED' } },
+            orderBy: { createdAt: 'desc' }
+          }
+        }
+      });
+      if (device && device.tickets && device.tickets.length > 0) {
+        ticket = device.tickets[0];
+      }
+    }
+
     if (!ticket) {
-      return res.status(404).json({ success: false, message: 'Ticket not found.' });
+      return res.status(404).json({ success: false, message: 'Target active ticket not found.' });
     }
 
     const stepNum = parseInt(stepNumber, 10);
-    let steps = [...ticket.completedSteps];
+    let steps = Array.isArray(ticket.completedSteps) ? [...ticket.completedSteps] : [];
 
     if (!steps.includes(stepNum)) {
       steps.push(stepNum);
       steps.sort((a, b) => a - b);
     }
 
-    // Determine status: all 4 done -> STEPS_COMPLETED, otherwise IN_PROGRESS
-    const newStatus = steps.length === 4 ? 'STEPS_COMPLETED' : 'IN_PROGRESS';
+    const newStatus = steps.length >= 4 ? 'STEPS_COMPLETED' : 'IN_PROGRESS';
 
     const updated = await prisma.ticket.update({
-      where: { id: ticketId },
+      where: { id: ticket.id },
       data: {
         completedSteps: steps,
         status: newStatus,
-        coordinatorId,
-        lastStepTimestamp: new Date()
+        lastStepTimestamp: new Date(),
+        coordinatorId: coordinatorId || ticket.coordinatorId
       }
     });
 
@@ -154,21 +177,30 @@ exports.completeStepAction = async (req, res) => {
       success: true,
       completedSteps: updated.completedSteps,
       status: updated.status,
+      ticketId: updated.id,
       message: `Step ${stepNum} completed successfully.`
     });
   } catch (error) {
     console.error('Error updating step action:', error);
-    return res.status(500).json({ success: false, message: 'Could not update step action.' });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// 5. Final Ground Resolution Check (Yes/No after 7 days or manual verify)
+// 5. Final Ground Resolution Check
 exports.verifyFinalResolution = async (req, res) => {
   try {
     const { ticketId, resolved } = req.body;
 
-    const ticket = await prisma.ticket.update({
-      where: { id: ticketId },
+    const ticket = await prisma.ticket.findUnique({
+      where: { id: String(ticketId) }
+    });
+
+    if (!ticket) {
+      return res.status(404).json({ success: false, message: 'Ticket not found.' });
+    }
+
+    const updated = await prisma.ticket.update({
+      where: { id: ticket.id },
       data: {
         status: resolved ? 'RESOLVED' : 'IN_PROGRESS',
         verifiedResolved: !!resolved
@@ -176,9 +208,9 @@ exports.verifyFinalResolution = async (req, res) => {
       include: { device: true }
     });
 
-    if (resolved) {
+    if (resolved && updated.deviceId) {
       await prisma.device.update({
-        where: { id: ticket.deviceId },
+        where: { id: updated.deviceId },
         data: { lastService: new Date() }
       });
     }
@@ -186,7 +218,7 @@ exports.verifyFinalResolution = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: resolved ? 'Issue verified resolved on ground.' : 'Pending maintenance revisit.',
-      ticket
+      ticket: updated
     });
   } catch (error) {
     console.error('Resolution verification error:', error);

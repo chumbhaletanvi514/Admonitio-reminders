@@ -40,7 +40,7 @@
         }
         .btn-back:hover { color: var(--primary); border-color: var(--primary); }
 
-        /* ACTIVE TICKET BANNER */
+        /* ACTIVE TICKET BANNER WITH RESET */
         .issue-summary-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -56,10 +56,111 @@
             font-size: 22px;
             font-weight: 800;
             color: var(--text-main);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         .issue-left-meta p { font-size: 15px; color: var(--text-secondary); }
-        .issue-badge-group { display: flex; gap: 10px; align-items: center; }
+
+        .btn-reset-cycle {
+            height: 46px;
+            padding: 0 20px;
+            border-radius: var(--radius-sm);
+            border: none;
+            background: #10B981;
+            color: #FFFFFF;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+            transition: all 0.2s;
+        }
+        .btn-reset-cycle:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        /* COMPLAINTS LIST SECTION */
+        .complaints-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 24px 28px;
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .complaints-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .complaints-header-row h3 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+        .complaint-count-tag {
+            background: var(--warning-light);
+            border: 1px solid var(--warning-border);
+            color: #D97706;
+            padding: 4px 12px;
+            border-radius: var(--radius-pill);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .complaints-grid-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 14px;
+        }
+        .complaint-item-card {
+            background: var(--bg-canvas);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .c-item-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .c-id {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        .c-sev {
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: var(--radius-pill);
+            text-transform: uppercase;
+        }
+        .c-sev.HIGH { background: var(--danger-light); color: var(--danger); }
+        .c-sev.MEDIUM { background: var(--warning-light); color: #D97706; }
+        .c-sev.LOW { background: var(--success-light); color: var(--success); }
+        .c-cat {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+        .c-spec {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        .c-time {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
 
         /* 4-STEPS GRID */
         .steps-container {
@@ -253,7 +354,11 @@
         }
 
         @media (max-width: 1024px) { .steps-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 650px) { .steps-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 650px) { 
+            .steps-grid { grid-template-columns: 1fr; }
+            .issue-summary-card { flex-direction: column; align-items: flex-start; }
+            .btn-reset-cycle { width: 100%; justify-content: center; }
+        }
     </style>
 </head>
 <body>
@@ -272,6 +377,8 @@
             <div style="display:none;">
                 <span id="coordName"></span>
                 <span id="coordEmail"></span>
+                <span id="ticketCodeTitle"></span>
+                <span id="severityBadge"></span>
             </div>
 
             <!-- Profile Avatar Only (Circular Initials) -->
@@ -288,7 +395,7 @@
         <div class="workflow-shell">
 
             <div class="back-nav-bar">
-                <a href="/dashboard.html" class="btn-back">
+                <a href="/dashboard" class="btn-back">
                     &larr; Back to Dashboard
                 </a>
                 <div class="step-progress-pill" id="completionStatusPill">
@@ -296,14 +403,27 @@
                 </div>
             </div>
 
-            <!-- Ticket Overview Card -->
+            <!-- Cooler Status & Reset Button Banner -->
             <div class="issue-summary-card">
                 <div class="issue-left-meta">
-                    <h2 id="ticketCodeTitle">Ticket #TKT-LOADING</h2>
-                    <p id="ticketDetailSubtitle">Observed Symptom: Loading...</p>
+                    <h2 id="coolerTitle">Water Cooler Maintenance Hub</h2>
+                    <p id="ticketDetailSubtitle">Review all reported complaints before vendor dispatch.</p>
                 </div>
                 <div class="issue-badge-group">
-                    <span class="device-health-label" id="severityBadge" style="background:var(--warning-light); color:#D97706; padding:8px 16px; font-size:13px;">Medium Impact</span>
+                    <button class="btn-reset-cycle" onclick="handleResetCooler()" id="btnResetCooler">
+                        ✓ Reset & Mark All Resolved
+                    </button>
+                </div>
+            </div>
+
+            <!-- COMPLAINTS REGISTER (List of all reported complaints) -->
+            <div class="complaints-section">
+                <div class="complaints-header-row">
+                    <h3>Active Student & Inspection Complaints</h3>
+                    <span class="complaint-count-tag" id="activeComplaintsCount">0 Pending Issues</span>
+                </div>
+                <div class="complaints-grid-view" id="complaintsContainer">
+                    <!-- Populated dynamically via JS -->
                 </div>
             </div>
 
@@ -316,7 +436,6 @@
                 </div>
 
                 <div class="steps-grid">
-
                     <!-- STEP 1: Google Sheet Log -->
                     <div class="step-card" id="card-step-1">
                         <div class="step-card-top">
@@ -380,7 +499,6 @@
                             Complete Ledger &rarr;
                         </button>
                     </div>
-
                 </div>
             </div>
 

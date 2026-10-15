@@ -10,5 +10,7 @@ router.post('/step-complete', authMiddleware, ticketController.completeStepActio
 router.post('/verify-resolution', authMiddleware, ticketController.verifyFinalResolution);
 router.post('/profile-update', authMiddleware, ticketController.updateCoordinatorProfile);
 router.get('/qr-codes', authMiddleware, deviceController.getDeviceQRCodes);
+router.post('/reset-cooler', authMiddleware, deviceController.resetCoolerTickets);
+router.post('/direct-complaint', authMiddleware, deviceController.createDirectComplaint);
 
 module.exports = router;

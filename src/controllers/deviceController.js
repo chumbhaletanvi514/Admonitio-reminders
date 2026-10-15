@@ -1,10 +1,11 @@
 const prisma = require('../config/db');
+const QRCode = require('qrcode');
 
+// 1. Fetch Dashboard Stats and Assigned Devices
 exports.getDashboardData = async (req, res) => {
   try {
-    const category = req.coordinator.category; // Scoped to WATER_COOLER
+    const category = req.coordinator.category; // 'WATER_COOLER'
 
-    // 1. Fetch all devices belonging to coordinator's category
     const devices = await prisma.device.findMany({
       where: { category },
       include: {
@@ -21,7 +22,6 @@ exports.getDashboardData = async (req, res) => {
       orderBy: { deviceCode: 'asc' },
     });
 
-    // 2. Calculate summary statistics
     const totalDevices = devices.length;
     let activeTicketsCount = 0;
     let inMaintenanceCount = 0;
@@ -29,9 +29,9 @@ exports.getDashboardData = async (req, res) => {
 
     devices.forEach(device => {
       device.tickets.forEach(ticket => {
-        if (ticket.status === 'OPEN' || ticket.status === 'UNDER_REVIEW') {
+        if (ticket.status === 'OPEN') {
           activeTicketsCount++;
-        } else if (ticket.status === 'IN_PROGRESS') {
+        } else if (ticket.status === 'IN_PROGRESS' || ticket.status === 'STEPS_COMPLETED') {
           inMaintenanceCount++;
         } else if (ticket.status === 'RESOLVED') {
           resolvedTicketsCount++;
@@ -55,9 +55,7 @@ exports.getDashboardData = async (req, res) => {
   }
 };
 
-const QRCode = require('qrcode');
-
-// Append to src/controllers/deviceController.js
+// 2. Generate QR Code stickers for all assigned devices
 exports.getDeviceQRCodes = async (req, res) => {
   try {
     const category = req.coordinator.category;
@@ -66,7 +64,6 @@ exports.getDeviceQRCodes = async (req, res) => {
       orderBy: { deviceCode: 'asc' },
     });
 
-    // Base URL where students access the reporting portal
     const baseUrl = `${req.protocol}://${req.get('host')}`;
 
     const qrData = await Promise.all(
@@ -93,5 +90,86 @@ exports.getDeviceQRCodes = async (req, res) => {
   } catch (error) {
     console.error('Error generating QR codes:', error);
     return res.status(500).json({ success: false, message: 'Failed to generate QR codes.' });
+  }
+};
+
+// 3. Reset Cooler: Mark ALL active complaints resolved and clear the cooler cycle
+exports.resetCoolerTickets = async (req, res) => {
+  try {
+    const { deviceCode } = req.body;
+
+    if (!deviceCode) {
+      return res.status(400).json({ success: false, message: 'Device code is required.' });
+    }
+
+    const device = await prisma.device.findUnique({
+      where: { deviceCode: String(deviceCode) },
+      include: { tickets: true }
+    });
+
+    if (!device) {
+      return res.status(404).json({ success: false, message: `Device ${deviceCode} not found.` });
+    }
+
+    // Only uses enum values present in TicketStatus: OPEN, IN_PROGRESS, STEPS_COMPLETED
+    await prisma.ticket.updateMany({
+      where: {
+        deviceId: device.id,
+        status: { in: ['OPEN', 'IN_PROGRESS', 'STEPS_COMPLETED'] }
+      },
+      data: {
+        status: 'RESOLVED',
+        verifiedResolved: true,
+      }
+    });
+
+    await prisma.device.update({
+      where: { id: device.id },
+      data: { lastService: new Date() }
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `Cooler ${deviceCode} has been reset. All active complaints are resolved.`
+    });
+  } catch (error) {
+    console.error('Error resetting cooler tickets:', error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// 4. Direct complaint creation by Coordinator (no QR scan needed)
+exports.createDirectComplaint = async (req, res) => {
+  try {
+    const { deviceCode, category, specification, severity } = req.body;
+
+    const device = await prisma.device.findUnique({
+      where: { deviceCode: String(deviceCode) }
+    });
+
+    if (!device) {
+      return res.status(404).json({ success: false, message: 'Device not found.' });
+    }
+
+    const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const count = await prisma.ticket.count();
+    const ticketNumber = `TKT-${todayStr}-${String(count + 1).padStart(3, '0')}`;
+
+    const newTicket = await prisma.ticket.create({
+      data: {
+        ticketNumber,
+        deviceId: device.id,
+        category: category || 'Coordinator Inspection Fault',
+        specification: specification || 'Coordinator logged maintenance issue',
+        severity: severity ? severity.toUpperCase() : 'MEDIUM',
+        status: 'OPEN',
+        completedSteps: []
+      }
+    });
+
+    return res.status(201).json({ success: true, ticket: newTicket });
+  } catch (error) {
+    console.error('Error creating direct complaint:', error);
+    return res.status(500).json({ success: false, message: 'Failed to log direct complaint.' });
   }
 };

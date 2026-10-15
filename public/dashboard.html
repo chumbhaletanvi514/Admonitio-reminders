@@ -8,6 +8,60 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/dashboard.css">
+    <style>
+        .admin-portals-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            width: 100%;
+        }
+        .portal-quick-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+            box-shadow: var(--shadow-card);
+            transition: all 0.2s ease;
+        }
+        .portal-quick-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-float);
+        }
+        .portal-icon {
+            font-size: 26px;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: var(--bg-canvas);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .portal-info { flex: 1; }
+        .portal-info h4 {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 2px;
+        }
+        .portal-info p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .portal-arrow {
+            font-size: 16px;
+            color: var(--primary);
+            font-weight: 800;
+        }
+        @media (max-width: 1024px) { .admin-portals-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .admin-portals-grid { grid-template-columns: 1fr; } }
+    </style>
 </head>
 <body>
 
@@ -49,6 +103,10 @@
             </div>
             
             <div class="welcome-actions-group">
+                <!-- Direct Internal Complaint Trigger -->
+                <button class="dash-date-badge btn-reminder-trigger" onclick="openDirectIssueModal()" style="border-color: #93C5FD; color: var(--primary);">
+                    ➕ Raise Direct Issue
+                </button>
                 <button class="dash-date-badge btn-reminder-trigger" onclick="triggerManualReminderScan()" title="Manually trigger reminder scan">
                     🔔 Run Reminder Scan
                 </button>
@@ -59,7 +117,7 @@
             </div>
         </div>
 
-        <!-- 4 Summary Stats (Emoji on Left, Centered Metric & Label) -->
+        <!-- 4 Summary Stats -->
         <div class="dash-stats-row">
             <div class="stat-card">
                 <div class="stat-icon-box blue">💧</div>
@@ -91,6 +149,54 @@
             </div>
         </div>
 
+        <!-- DIRECT ADMINISTRATIVE & FACILITY PORTALS -->
+        <div class="section-title-bar" style="margin-top: 10px;">
+            <div>
+                <h2>Administrative & Facility Portals</h2>
+            </div>
+            <span style="font-size: 13px; color: var(--text-muted); font-weight: 600;">
+                Direct external platform access
+            </span>
+        </div>
+
+        <div class="admin-portals-grid">
+            <a href="https://docs.google.com/spreadsheets" target="_blank" class="portal-quick-card">
+                <div class="portal-icon">📊</div>
+                <div class="portal-info">
+                    <h4>Asset Register (Sheet)</h4>
+                    <p>Internal department log</p>
+                </div>
+                <span class="portal-arrow">&nearr;</span>
+            </a>
+
+            <a href="https://fms.college.edu/login" target="_blank" class="portal-quick-card">
+                <div class="portal-icon">🏛️</div>
+                <div class="portal-info">
+                    <h4>College FMS Portal</h4>
+                    <p>Official ERP facility tickets</p>
+                </div>
+                <span class="portal-arrow">&nearr;</span>
+            </a>
+
+            <a href="https://vendor.service.com" target="_blank" class="portal-quick-card">
+                <div class="portal-icon">📞</div>
+                <div class="portal-info">
+                    <h4>Vendor Support</h4>
+                    <p>Technician & parts dispatch</p>
+                </div>
+                <span class="portal-arrow">&nearr;</span>
+            </a>
+
+            <a href="https://maintenance.college.edu" target="_blank" class="portal-quick-card">
+                <div class="portal-icon">📝</div>
+                <div class="portal-info">
+                    <h4>Estate Ledger</h4>
+                    <p>Campus maintenance records</p>
+                </div>
+                <span class="portal-arrow">&nearr;</span>
+            </a>
+        </div>
+
         <!-- Devices Grid Section -->
         <div class="section-title-bar">
             <div>
@@ -103,6 +209,60 @@
             <!-- Dynamically populated from JS -->
         </div>
     </main>
+
+    <!-- DIRECT ISSUE CREATION MODAL (No QR needed) -->
+    <div class="modal-overlay" id="directIssueModal">
+        <div class="prompt-modal-box">
+            <h3>Raise Internal Maintenance Ticket</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
+                Log an inspection issue noticed directly by facilities staff.
+            </p>
+
+            <form onsubmit="handleDirectIssueSubmit(event)" style="display: flex; flex-direction: column; gap: 14px; text-align: left;">
+                <div class="profile-form-group">
+                    <label>Target Water Cooler</label>
+                    <select id="directDeviceSelect" class="profile-input" required>
+                        <!-- Populated with cooler list -->
+                    </select>
+                </div>
+
+                <div class="profile-form-group">
+                    <label>Category of Fault</label>
+                    <select id="directCategorySelect" class="profile-input" required>
+                        <option value="Cooling Fault">Cooling Fault</option>
+                        <option value="Water Leakage">Water Leakage</option>
+                        <option value="Power & Electrical">Power & Electrical</option>
+                        <option value="No Water Flow">No Water Flow</option>
+                        <option value="Water Quality">Water Quality</option>
+                        <option value="Physical Damage">Physical Damage</option>
+                    </select>
+                </div>
+
+                <div class="profile-form-group">
+                    <label>Specific Symptom / Notes</label>
+                    <input type="text" id="directSpecInput" class="profile-input" placeholder="e.g. Water pooling on floor beneath cooler" required>
+                </div>
+
+                <div class="profile-form-group">
+                    <label>Severity</label>
+                    <select id="directSeveritySelect" class="profile-input" required>
+                        <option value="LOW">Low (Minor)</option>
+                        <option value="MEDIUM" selected>Medium (Partial fault)</option>
+                        <option value="HIGH">High (Out of service)</option>
+                    </select>
+                </div>
+
+                <div class="modal-actions-row" style="margin-top: 8px;">
+                    <button type="button" class="btn-modal-cancel" onclick="closeDirectIssueModal()">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-modal-save">
+                        Submit Ticket
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Coordinator Profile Settings Modal -->
     <div class="modal-overlay" id="profileSettingsModal">
