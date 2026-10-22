@@ -77,7 +77,7 @@ function renderComplaintsList(tickets) {
     if (tickets.length === 0) {
         container.innerHTML = `
             <div style="grid-column: 1 / -1; text-align: center; padding: 24px; color: var(--text-muted); font-size: 14px;">
-                🎉 No pending complaints! This water cooler is running cleanly.
+                 No pending complaints! This water cooler is running cleanly.
             </div>
         `;
         return;
