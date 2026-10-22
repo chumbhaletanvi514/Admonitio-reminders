@@ -9,6 +9,7 @@ datasource db {
 
 enum DeviceCategory {
   WATER_COOLER
+  FIRE_EXTINGUISHER
   STATIONARY
   PRINTER
 }
@@ -27,29 +28,35 @@ enum Severity {
 }
 
 model Coordinator {
-  id           String         @id @default(uuid())
-  username     String         @unique // Default email address (e.g. coord@college.edu)
-  notificationEmail String?   // Custom email override if updated in profile
-  password     String
-  name         String
-  category     DeviceCategory @default(WATER_COOLER)
-  roleTitle    String
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  tickets      Ticket[]
+  id                String           @id @default(uuid())
+  username          String           @unique
+  notificationEmail String?
+  password          String
+  name              String
+  categories        DeviceCategory[] @default([WATER_COOLER])
+  roleTitle         String
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  tickets           Ticket[]
 }
 
 model Device {
-  id           String         @id @default(uuid())
-  deviceCode   String         @unique
-  name         String
-  category     DeviceCategory @default(WATER_COOLER)
-  location     String
-  model        String         @default("V-80L")
-  filterHealth Int            @default(64)
-  lastService  DateTime       @default(now())
-  createdAt    DateTime       @default(now())
-  tickets      Ticket[]
+  id               String         @id @default(uuid())
+  deviceCode       String         @unique
+  name             String
+  category         DeviceCategory @default(WATER_COOLER)
+  location         String
+  model            String         @default("V-80L")
+  filterHealth     Int            @default(64)
+  lastService      DateTime       @default(now())
+
+  // Fire Extinguisher & Asset Expiry Fields
+  expiryDate       DateTime?
+  capacity         String?        @default("6 KG")
+  extinguisherType String?        @default("ABC Dry Powder")
+
+  createdAt        DateTime       @default(now())
+  tickets          Ticket[]
 }
 
 model Ticket {
@@ -59,7 +66,7 @@ model Ticket {
   specification     String
   severity          Severity     @default(MEDIUM)
   status            TicketStatus @default(OPEN)
-  completedSteps    Int[]        @default([])  // Stores completed step numbers: e.g. [2, 3]
+  completedSteps    Int[]        @default([])
   lastStepTimestamp DateTime     @default(now())
   verifiedResolved  Boolean      @default(false)
   reporterName      String?

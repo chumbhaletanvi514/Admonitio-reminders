@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admonitio — Select Facility Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <style>
+        .hub-container {
+            max-width: 900px;
+            margin: 80px auto;
+            padding: 0 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .hub-header {
+            text-align: center;
+        }
+
+        .hub-header h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 6px;
+            letter-spacing: -0.6px;
+        }
+
+        .hub-header p {
+            font-size: 15px;
+            color: var(--text-secondary);
+        }
+
+        /* Horizontal Row with Square Cards */
+        .hub-horizontal-row {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 32px;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .hub-square-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-xl);
+            width: 240px;
+            height: 240px;
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.25s ease;
+            position: relative;
+            text-align: center;
+            padding: 24px;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+
+        .hub-square-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-float);
+        }
+
+        .hub-card-icon {
+            font-size: 56px;
+            margin-bottom: 16px;
+            line-height: 1;
+            transition: transform 0.2s ease;
+        }
+
+        .hub-square-card:hover .hub-card-icon {
+            transform: scale(1.1);
+        }
+
+        .hub-card-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.3px;
+        }
+
+        .hub-square-card.disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            pointer-events: none;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        @media (max-width: 600px) {
+            .hub-horizontal-row {
+                flex-direction: column;
+            }
+            .hub-square-card {
+                width: 220px;
+                height: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="dash-navbar">
+        <div class="dash-brand">
+            <img src="/images/logo.jpeg" alt="Admonitio Logo" class="dash-logo-img" onerror="this.style.display='none'">
+            <div class="dash-brand-name">Admo<span>nitio</span></div>
+            <div class="dash-brand-divider"></div>
+            <div class="dash-brand-label">Facility Control Hub</div>
+        </div>
+        
+        <div class="dash-nav-right">
+            <div class="coordinator-avatar-btn" id="coordAvatar" title="Coordinator">
+                TN
+            </div>
+            <button class="dash-logout-btn" onclick="logout()" title="Sign Out">
+                <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            </button>
+        </div>
+    </nav>
+
+    <main class="hub-container">
+        <div class="hub-header">
+            <h1 id="welcomeGreeting">Select Facility Category</h1>
+            <p>Access your authorized campus infrastructure dashboards below.</p>
+        </div>
+
+        <div class="hub-horizontal-row" id="categoryRow">
+            <!-- Populated dynamically via JS -->
+        </div>
+    </main>
+
+    <script>
+        const token = localStorage.getItem('admonitio_token');
+        const coordDataStr = localStorage.getItem('coordinator_data');
+
+        if (!token || !coordDataStr) {
+            window.location.href = '/login';
+        }
+
+        const coordinator = JSON.parse(coordDataStr || '{}');
+        const avatarEl = document.getElementById('coordAvatar');
+        if (avatarEl) {
+            avatarEl.textContent = coordinator.name 
+                ? coordinator.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() 
+                : 'TN';
+        }
+
+        if (coordinator.name) {
+            document.getElementById('welcomeGreeting').textContent = `Welcome, ${coordinator.name}`;
+        }
+
+        const allowedCategories = coordinator.categories || ['WATER_COOLER'];
+
+        const CATEGORY_DEFINITIONS = [
+            {
+                key: 'WATER_COOLER',
+                title: 'Water Coolers',
+                icon: '💧',
+                url: '/dashboard.html'
+            },
+            {
+                key: 'FIRE_EXTINGUISHER',
+                title: 'Fire Extinguishers',
+                icon: '🧯',
+                url: '/extinguisher-dashboard.html'
+            }
+        ];
+
+        const container = document.getElementById('categoryRow');
+        container.innerHTML = '';
+
+        CATEGORY_DEFINITIONS.forEach(cat => {
+            const hasAccess = allowedCategories.includes(cat.key);
+            
+            if (hasAccess) {
+                const card = document.createElement('a');
+                card.href = cat.url;
+                card.className = 'hub-square-card';
+                card.innerHTML = `
+                    <div class="hub-card-icon">${cat.icon}</div>
+                    <div class="hub-card-title">${cat.title}</div>
+                `;
+                container.appendChild(card);
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('admonitio_token');
+            localStorage.removeItem('coordinator_data');
+            window.location.href = '/login';
+        }
+    </script>
+</body>
+</html>

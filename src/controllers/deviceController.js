@@ -2,12 +2,12 @@ const prisma = require('../config/db');
 const QRCode = require('qrcode');
 
 // 1. Fetch Dashboard Stats and Assigned Devices
+// 1. Fetch Dashboard Stats and Assigned Devices (Water Coolers Only)
 exports.getDashboardData = async (req, res) => {
   try {
-    const category = req.coordinator.category; // 'WATER_COOLER'
-
+    // Explicitly lock to WATER_COOLER
     const devices = await prisma.device.findMany({
-      where: { category },
+      where: { category: 'WATER_COOLER' },
       include: {
         tickets: {
           select: {
@@ -55,12 +55,11 @@ exports.getDashboardData = async (req, res) => {
   }
 };
 
-// 2. Generate QR Code stickers for all assigned devices
+// 2. Generate QR Code stickers for Water Coolers Only
 exports.getDeviceQRCodes = async (req, res) => {
   try {
-    const category = req.coordinator.category;
     const devices = await prisma.device.findMany({
-      where: { category },
+      where: { category: 'WATER_COOLER' },
       orderBy: { deviceCode: 'asc' },
     });
 

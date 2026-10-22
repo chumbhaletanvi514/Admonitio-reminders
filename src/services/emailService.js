@@ -12,7 +12,7 @@ const transporter = hasCredentials
     })
   : null;
 
-// Send Daily Incomplete Steps Reminder
+// Existing Water Cooler Incomplete Steps Reminder
 exports.sendIncompleteStepsReminder = async (toEmail, coordinatorName, ticket, missingSteps) => {
   const stepLabels = {
     1: 'Step 1: Google Sheet Record',
@@ -45,7 +45,7 @@ http://localhost:5000/ticket-detail?code=${ticket.device.deviceCode}
   `;
 
   console.log(`\n======================================================`);
-  console.log(`📨 [EMAIL DISPATCHED] To: ${toEmail}`);
+  console.log(`📨 [WATER COOLER REMINDER DISPATCHED] To: ${toEmail}`);
   console.log(`Subject: ${subject}`);
   console.log(`Body:\n${bodyText}`);
   console.log(`======================================================\n`);
@@ -64,7 +64,7 @@ http://localhost:5000/ticket-detail?code=${ticket.device.deviceCode}
   }
 };
 
-// Send 7-Day Resolution Verification Reminder
+// Existing Water Cooler 7-Day Verification Reminder
 exports.sendSevenDayVerificationReminder = async (toEmail, coordinatorName, ticket) => {
   const subject = `🔍 7-Day Ground Check: Has #${ticket.ticketNumber} Been Physically Repaired?`;
   const bodyText = `
@@ -94,6 +94,67 @@ http://localhost:5000/ticket-detail?code=${ticket.device.deviceCode}
     try {
       await transporter.sendMail({
         from: `"Admonitio Maintenance" <${process.env.EMAIL_USER}>`,
+        to: toEmail,
+        subject,
+        text: bodyText,
+      });
+    } catch (err) {
+      console.error('SMTP Send error:', err.message);
+    }
+  }
+};
+
+// ============================================================
+// NEW: Fire Extinguisher Expiry Escalation Reminder
+// Escalation intervals: 15, 10, 5, 4, 3, 2, 1 days
+// ============================================================
+exports.sendExtinguisherExpiryReminder = async (toEmail, coordinatorName, extinguisher, daysRemaining) => {
+  const expiryFormatted = new Date(extinguisher.expiryDate).toLocaleDateString('en-US', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
+
+  const confirmUrl = `http://localhost:5000/api/extinguishers/confirm-replaced?deviceCode=${extinguisher.deviceCode}`;
+
+  const urgencyTag = daysRemaining <= 3 ? '🚨 CRITICAL SAFETY ALERT' : '⚠️ URGENT REMINDER';
+  const subject = `${urgencyTag}: Fire Extinguisher ${extinguisher.name} (${extinguisher.deviceCode}) Expires in ${daysRemaining} Day${daysRemaining === 1 ? '' : 's'}!`;
+
+  const bodyText = `
+Hello ${coordinatorName},
+
+This is an automated safety compliance alert from Admonitio.
+
+Unit Details:
+• Cylinder Name: ${extinguisher.name} (${extinguisher.deviceCode})
+• Location: ${extinguisher.location}
+• Type: ${extinguisher.extinguisherType || 'ABC Dry Powder'} (${extinguisher.capacity || '6 KG'})
+• Current Expiry Date: ${expiryFormatted}
+• Countdown: ONLY ${daysRemaining} DAY(S) REMAINING!
+
+ACTION REQUIRED:
+Please verify physical inspection and cylinder replacement / refill with the campus safety agency.
+
+If this extinguisher has ALREADY been replaced/certified, click the confirmation link below to renew certification (+1 year) and immediately halt all reminder emails:
+
+👉 One-Click Confirmation: ${confirmUrl}
+
+To inspect all campus fire extinguishers or modify dates manually:
+http://localhost:5000/extinguisher-dashboard
+
+— Admonitio Campus Safety & Compliance System
+  `;
+
+  console.log(`\n======================================================`);
+  console.log(`🧯 [FIRE EXTINGUISHER REMINDER DISPATCHED] To: ${toEmail}`);
+  console.log(`Subject: ${subject}`);
+  console.log(`Body:\n${bodyText}`);
+  console.log(`======================================================\n`);
+
+  if (transporter) {
+    try {
+      await transporter.sendMail({
+        from: `"Admonitio Safety Compliance" <${process.env.EMAIL_USER}>`,
         to: toEmail,
         subject,
         text: bodyText,

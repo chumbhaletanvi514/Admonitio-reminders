@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admonitio — Fire Extinguisher QR Codes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <style>
+        .qr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            width: 100%;
+            margin-top: 24px;
+        }
+
+        .qr-badge-card {
+            background: #FFFFFF;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 16px;
+            padding: 24px 20px;
+            box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .qr-badge-card:hover {
+            border-color: #2563EB;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -4px rgba(15, 23, 42, 0.1);
+        }
+
+        .qr-img-wrapper {
+            background: #FFFFFF;
+            padding: 8px;
+            border-radius: 12px;
+            border: 1px solid #E2E8F0;
+            margin-bottom: 16px;
+        }
+
+        .qr-img-wrapper img {
+            width: 190px;
+            height: 190px;
+            display: block;
+        }
+
+        .badge-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0F172A;
+            margin-bottom: 4px;
+        }
+
+        .badge-location {
+            font-size: 13px;
+            color: #64748B;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .btn-download-qr {
+            width: 100%;
+            height: 38px;
+            background: #2563EB;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+
+        .btn-download-qr:hover {
+            background: #1D4ED8;
+        }
+
+        /* PRINT STYLING */
+        @media print {
+            body {
+                background: #FFFFFF !important;
+                color: #000000 !important;
+                padding: 0 !important;
+            }
+
+            .dash-navbar, 
+            .btn-download-qr {
+                display: none !important;
+            }
+
+            .dash-body {
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .qr-grid {
+                margin-top: 0 !important;
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 20px !important;
+            }
+
+            .qr-badge-card {
+                box-shadow: none !important;
+                border: 1px dashed #94A3B8 !important;
+                page-break-inside: avoid !important;
+                padding: 16px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="dash-navbar">
+        <div class="dash-brand">
+            <img src="/images/logo.jpeg" alt="Admonitio Logo" class="dash-logo-img" onerror="this.style.display='none'">
+            <div class="dash-brand-name">Admo<span>nitio</span></div>
+            <div class="dash-brand-divider"></div>
+            <div class="dash-brand-label">Extinguisher QR Codes</div>
+        </div>
+        
+        <div class="dash-nav-right">
+            <button class="dash-date-badge" onclick="window.print()" style="cursor: pointer; border-color: #2563EB; color: #2563EB; font-weight: 700;">
+                🖨️ Print Badges
+            </button>
+            <a href="/extinguisher-dashboard" class="dash-date-badge" style="text-decoration: none;">
+                &larr; Dashboard
+            </a>
+        </div>
+    </nav>
+
+    <main class="dash-body">
+        <div class="qr-grid" id="qrContainer">
+            <p style="color: var(--text-muted); grid-column: 1 / -1; text-align: center; padding: 40px;">Loading QR codes...</p>
+        </div>
+    </main>
+
+    <script>
+        const token = localStorage.getItem('admonitio_token');
+        if (!token) window.location.href = '/login';
+
+        async function loadQRs() {
+            try {
+                const res = await fetch('/api/extinguishers/qr-codes', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                const data = await res.json();
+                if (!data.success) {
+                    alert('Could not generate extinguisher QR codes.');
+                    return;
+                }
+
+                const container = document.getElementById('qrContainer');
+                container.innerHTML = '';
+
+                data.devices.forEach(dev => {
+                    const card = document.createElement('div');
+                    card.className = 'qr-badge-card';
+
+                    card.innerHTML = `
+                        <div class="qr-img-wrapper">
+                            <img src="${dev.qrImage}" alt="QR Code for ${dev.name}">
+                        </div>
+
+                        <h3 class="badge-title">${dev.name} (${dev.deviceCode})</h3>
+                        
+                        <div class="badge-location">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            ${dev.location}
+                        </div>
+
+                        <a href="${dev.qrImage}" download="QR_${dev.deviceCode}.png" class="btn-download-qr">
+                            ⬇ Download PNG
+                        </a>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                console.error('Error loading QR codes:', err);
+            }
+        }
+
+        loadQRs();
+    </script>
+</body>
+</html>
+
+//http://localhost:5000/extinguisher-status.html?code=FE-A2-204

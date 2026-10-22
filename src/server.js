@@ -6,6 +6,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const deviceRoutes = require('./routes/deviceRoutes');
 const ticketRoutes = require('./routes/ticketRoutes');
+const extinguisherRoutes = require('./routes/extinguisherRoutes');
 const cronService = require('./services/cronService');
 
 const app = express();
@@ -22,12 +23,32 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/api/auth', authRoutes);
 app.use('/api/devices', deviceRoutes);
 app.use('/api/tickets', ticketRoutes);
+app.use('/api/extinguishers', extinguisherRoutes);
 
-// TEST ENDPOINT: Manually trigger reminder scan right now for demo/presentation
+// TEST ENDPOINT: Manually triggers BOTH water cooler and extinguisher scans right now for demo/viva
+// Segregated Reminder Triggers
+
+// 1. Water Cooler Reminder Scan Only
+app.post('/api/reminders/trigger-water-coolers', async (req, res) => {
+  console.log('\n--- MANUAL WATER COOLER SCAN INITIATED ---');
+  await cronService.runDailyIncompleteCheck();
+  await cronService.runSevenDayVerificationCheck();
+  res.json({ success: true, message: 'Water Cooler reminder scan complete!' });
+});
+
+// 2. Fire Extinguisher Expiry Scan Only
+app.post('/api/reminders/trigger-extinguishers', async (req, res) => {
+  console.log('\n--- MANUAL FIRE EXTINGUISHER SCAN INITIATED ---');
+  await cronService.runExtinguisherExpiryCheck();
+  res.json({ success: true, message: 'Fire Extinguisher reminder scan complete!' });
+});
+
+// Backward-compatible trigger (runs both if needed)
 app.post('/api/reminders/trigger-now', async (req, res) => {
   await cronService.runDailyIncompleteCheck();
   await cronService.runSevenDayVerificationCheck();
-  res.json({ success: true, message: 'Reminder scan triggered. Check terminal console or inbox!' });
+  await cronService.runExtinguisherExpiryCheck();
+  res.json({ success: true, message: 'Full campus reminder scan complete!' });
 });
 
 // Page Routing
@@ -35,12 +56,28 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/login.html'));
 });
 
+app.get('/select-category', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/select-category.html'));
+});
+
 app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/dashboard.html'));
 });
 
+app.get('/extinguisher-dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/extinguisher-dashboard.html'));
+});
+
+app.get('/extinguisher-qr', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/extinguisher-qr.html'));
+});
+
 app.get('/ticket-detail', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/ticket-detail.html'));
+});
+
+app.get('/qr-codes', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/qr-codes.html'));
 });
 
 app.get('/', (req, res) => {
@@ -50,10 +87,14 @@ app.get('/', (req, res) => {
 // Start Background Cron Schedulers
 cronService.startSchedulers();
 
-app.listen(PORT, () => {
-  console.log(`Server listening on http://localhost:${PORT}`);
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`\n======================================================`);
+  console.log(`🚀 Admonitio Server running successfully!`);
+  console.log(`👉 Local:   http://localhost:${PORT}`);
+  console.log(`👉 Network: http://127.0.0.1:${PORT}`);
+  console.log(`======================================================\n`);
 });
 
-app.get('/qr-codes', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/qr-codes.html'));
+server.on('error', (err) => {
+  console.error('Server startup error:', err);
 });

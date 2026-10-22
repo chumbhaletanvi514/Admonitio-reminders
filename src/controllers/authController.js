@@ -23,13 +23,15 @@ exports.login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid Coordinator ID or Password' });
     }
 
+    const categories = coordinator.categories || ['WATER_COOLER'];
+
     const token = jwt.sign(
       {
         id: coordinator.id,
         username: coordinator.username,
-        category: coordinator.category,
+        categories: categories,
       },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || 'admonitio_super_secret_jwt_key',
       { expiresIn: '24h' }
     );
 
@@ -40,7 +42,8 @@ exports.login = async (req, res) => {
         id: coordinator.id,
         username: coordinator.username,
         name: coordinator.name,
-        category: coordinator.category,
+        categories: categories,
+        notificationEmail: coordinator.notificationEmail,
         roleTitle: coordinator.roleTitle,
       },
     });

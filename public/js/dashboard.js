@@ -203,12 +203,12 @@ function logout() {
 }
 
 async function triggerManualReminderScan() {
-    showToast('Running reminder scan...');
+    showToast('Running water cooler reminder scan...');
     try {
-        const res = await fetch('/api/reminders/trigger-now', { method: 'POST' });
+        const res = await fetch('/api/reminders/trigger-water-coolers', { method: 'POST' });
         const data = await res.json();
         if (data.success) {
-            showToast('Reminder scan complete! Check console.');
+            showToast('Water cooler scan complete! Check console.');
         }
     } catch (e) {
         console.error(e);

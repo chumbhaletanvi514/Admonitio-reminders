@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admonitio — Fire Extinguisher Inspection Desk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/student.css">
+    <style>
+        .cert-card-shell {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 36px 32px;
+            box-shadow: 0 20px 40px -8px rgba(15,23,42,0.12);
+            border: 1px solid #E2E8F0;
+            text-align: center;
+        }
+        .cert-badge-large {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            border-radius: 9999px;
+            font-size: 15px;
+            font-weight: 800;
+            margin-bottom: 24px;
+        }
+        .cert-badge-large.valid {
+            background: #DCFCE7;
+            color: #15803D;
+            border: 1.5px solid #86EFAC;
+        }
+        .cert-badge-large.expired {
+            background: #FEE2E2;
+            color: #B91C1C;
+            border: 1.5px solid #FCA5A5;
+        }
+        .info-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+            text-align: left;
+        }
+        .info-cell {
+            background: #F8FAFC;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid #E2E8F0;
+        }
+        .info-cell-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748B;
+            text-transform: uppercase;
+        }
+        .info-cell-val {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0F172A;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="app-navbar">
+        <div class="nav-left">
+            <img src="/images/logo.jpeg" alt="Admonitio Logo" class="brand-logo-img" onerror="this.style.display='none'">
+            <div class="brand-name">Admo<span>nitio</span></div>
+            <div class="brand-divider"></div>
+            <div class="brand-label">Campus Safety Verification</div>
+        </div>
+
+        <div class="nav-right">
+            <div class="qr-status-pill">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <span>Certified Sticker</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="page-container">
+        <div class="cert-card-shell">
+            <div id="statusBadge" class="cert-badge-large valid">
+                ✓ Inspected & Certified
+            </div>
+
+            <h1 id="feName" style="font-size: 26px; font-weight: 800; color: #0F172A; margin-bottom: 6px;">Fire Extinguisher</h1>
+            <p id="feLocation" style="font-size: 14px; color: #64748B;">Fetching location...</p>
+
+            <div class="info-grid-2">
+                <div class="info-cell">
+                    <div class="info-cell-label">Cylinder Code</div>
+                    <div class="info-cell-val" id="feCode">-</div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-cell-label">Agent / Type</div>
+                    <div class="info-cell-val" id="feType">-</div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-cell-label">Capacity</div>
+                    <div class="info-cell-val" id="feCapacity">-</div>
+                </div>
+                <div class="info-cell">
+                    <div class="info-cell-label">Certified Expiry Date</div>
+                    <div class="info-cell-val" id="feExpiry">-</div>
+                </div>
+            </div>
+
+            <p id="countdownMessage" style="font-size: 13px; color: #475569; margin-top: 12px; font-weight: 600;">
+                Regular annual inspection verified by Campus Estate Office.
+            </p>
+        </div>
+    </main>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code') || 'FE-A1-101';
+
+        async function loadExtinguisherStatus() {
+            try {
+                const res = await fetch(`/api/extinguishers/public-status/${code}`);
+                const data = await res.json();
+
+                if (!data.success) {
+                    document.getElementById('feName').textContent = 'Extinguisher Not Found';
+                    return;
+                }
+
+                const fe = data.extinguisher;
+                document.getElementById('feName').textContent = `${fe.name} (${fe.deviceCode})`;
+                document.getElementById('feLocation').textContent = fe.location;
+                document.getElementById('feCode').textContent = fe.deviceCode;
+                document.getElementById('feType').textContent = fe.extinguisherType || 'ABC Dry Powder';
+                document.getElementById('feCapacity').textContent = fe.capacity || '6 KG';
+
+                const badge = document.getElementById('statusBadge');
+                const expiryVal = document.getElementById('feExpiry');
+                const countdownMsg = document.getElementById('countdownMessage');
+
+                if (fe.expiryDate) {
+                    const formatted = new Date(fe.expiryDate).toLocaleDateString('en-US', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric'
+                    });
+                    expiryVal.textContent = formatted;
+
+                    if (fe.isCertified) {
+                        badge.className = 'cert-badge-large valid';
+                        badge.textContent = `✓ Inspected & Certified (Valid until ${formatted})`;
+                        countdownMsg.textContent = `Unit is active and certified for use. ${fe.daysRemaining} days remaining in this service cycle.`;
+                    } else {
+                        badge.className = 'cert-badge-large expired';
+                        badge.textContent = `⚠️ Due for Refill / Expired (${formatted})`;
+                        countdownMsg.textContent = 'This cylinder has passed its certified date and is scheduled for vendor servicing.';
+                    }
+                } else {
+                    expiryVal.textContent = 'Inspection Pending';
+                }
+
+            } catch (err) {
+                console.error('Error fetching public status:', err);
+            }
+        }
+
+        loadExtinguisherStatus();
+    </script>
+</body>
+</html>

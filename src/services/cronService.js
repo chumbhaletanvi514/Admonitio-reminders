@@ -2,11 +2,10 @@ const cron = require('node-cron');
 const prisma = require('../config/db');
 const emailService = require('./emailService');
 
-// 1. Core function to check and send daily incomplete reminders
+// 1. Water Cooler: Check and send daily incomplete reminders
 async function runDailyIncompleteCheck() {
-  console.log('⏰ Running daily incomplete step reminder scan...');
+  console.log('⏰ Running daily water cooler incomplete step reminder scan...');
   try {
-    // Find all tickets that are not RESOLVED and have not completed all 4 steps
     const pendingTickets = await prisma.ticket.findMany({
       where: {
         status: { in: ['OPEN', 'IN_PROGRESS'] },
@@ -23,7 +22,6 @@ async function runDailyIncompleteCheck() {
       const missing = allSteps.filter(s => !done.includes(s));
 
       if (missing.length > 0) {
-        // Find assigned coordinator, or fallback to first coordinator
         let coordinator = ticket.coordinator;
         if (!coordinator) {
           coordinator = await prisma.coordinator.findFirst();
@@ -41,11 +39,11 @@ async function runDailyIncompleteCheck() {
       }
     }
   } catch (error) {
-    console.error('Error during daily reminder check:', error);
+    console.error('Error during daily cooler reminder check:', error);
   }
 }
 
-// 2. Core function to check 7-day post-completion verification
+// 2. Water Cooler: 7-day post-completion verification
 async function runSevenDayVerificationCheck() {
   console.log('⏰ Running 7-day verification scan...');
   try {
@@ -84,14 +82,67 @@ async function runSevenDayVerificationCheck() {
   }
 }
 
-// Start automated schedules:
-// • Daily check at 09:00 AM every day: '0 9 * * *'
-// • Weekly check at 09:30 AM every Monday: '30 9 * * 1'
+// 3. Fire Extinguisher: Daily Expiry Countdown Sweep (15, 10, 5, 4, 3, 2, 1 days)
+async function runExtinguisherExpiryCheck() {
+  console.log('⏰ Running fire extinguisher expiry reminder scan...');
+  try {
+    const extinguishers = await prisma.device.findMany({
+      where: {
+        category: 'FIRE_EXTINGUISHER',
+        expiryDate: { not: null }
+      }
+    });
+
+    // Find coordinators managing FIRE_EXTINGUISHER
+    const coordinators = await prisma.coordinator.findMany({
+      where: {
+        categories: { has: 'FIRE_EXTINGUISHER' }
+      }
+    });
+
+    const fallbackCoordinator = coordinators[0] || (await prisma.coordinator.findFirst());
+    if (!fallbackCoordinator) {
+      console.log('No coordinator found to receive extinguisher alerts.');
+      return;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const TARGET_REMINDER_DAYS = [15, 10, 5, 4, 3, 2, 1];
+
+    for (const fe of extinguishers) {
+      const expDate = new Date(fe.expiryDate);
+      expDate.setHours(0, 0, 0, 0);
+
+      const diffTime = expDate - today;
+      const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      // Trigger if today hits exact reminder thresholds or if already overdue (<= 0)
+      if (TARGET_REMINDER_DAYS.includes(daysRemaining) || (daysRemaining <= 0 && daysRemaining >= -3)) {
+        const targetEmail = fallbackCoordinator.notificationEmail || fallbackCoordinator.username;
+        await emailService.sendExtinguisherExpiryReminder(
+          targetEmail,
+          fallbackCoordinator.name,
+          fe,
+          daysRemaining
+        );
+      }
+    }
+  } catch (error) {
+    console.error('Error during extinguisher reminder check:', error);
+  }
+}
+
+// Start automated background schedules
 function startSchedulers() {
+  // Daily check at 09:00 AM every day
   cron.schedule('0 9 * * *', () => {
     runDailyIncompleteCheck();
+    runExtinguisherExpiryCheck();
   });
 
+  // Weekly check at 09:30 AM every Monday
   cron.schedule('30 9 * * 1', () => {
     runSevenDayVerificationCheck();
   });
@@ -101,6 +152,7 @@ function startSchedulers() {
 
 module.exports = {
   startSchedulers,
-  runDailyIncompleteCheck,       // Exported so we can trigger manually via test button
-  runSevenDayVerificationCheck,  // Exported so we can trigger manually via test button
+  runDailyIncompleteCheck,
+  runSevenDayVerificationCheck,
+  runExtinguisherExpiryCheck, // Exported for immediate demo trigger
 };

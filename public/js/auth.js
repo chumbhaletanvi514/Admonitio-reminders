@@ -52,14 +52,14 @@ async function handleLoginSubmit(e) {
             return;
         }
 
-        // Store JWT token and domain category
+        // Store JWT token and coordinator data (includes categories array)
         localStorage.setItem('admonitio_token', data.token);
         localStorage.setItem('coordinator_data', JSON.stringify(data.coordinator));
 
         showToast('Login Successful! Redirecting...');
         setTimeout(() => {
-            window.location.href = '/dashboard.html';
-        }, 800);
+            window.location.href = '/select-category';
+        }, 600);
 
     } catch (err) {
         console.error('Server error:', err);
