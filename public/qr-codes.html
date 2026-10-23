@@ -115,14 +115,17 @@
     </main>
 
     <script>
-        const token = localStorage.getItem('admonitio_token');
-        if (!token) window.location.href = '/login';
-
         async function loadQRs() {
             try {
                 const res = await fetch('/api/devices/qr-codes', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    credentials: 'include'
                 });
+
+                if (res.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+
                 const data = await res.json();
                 if (!data.success) return;
 

@@ -52,17 +52,15 @@ async function handleLoginSubmit(e) {
             return;
         }
 
-        // Store JWT token and coordinator data (includes categories array)
-        localStorage.setItem('admonitio_token', data.token);
-        localStorage.setItem('coordinator_data', JSON.stringify(data.coordinator));
+        // Clean out any lingering localStorage items from earlier testing
+        localStorage.clear();
 
         showToast('Login Successful! Redirecting...');
         setTimeout(() => {
             window.location.href = '/select-category';
-        }, 600);
+        }, 500);
 
     } catch (err) {
-        console.error('Server error:', err);
         showError('Could not connect to server. Please try again.');
         loginBtn.disabled = false;
         loginBtn.textContent = 'Sign In to Dashboard';
@@ -76,6 +74,7 @@ function showError(msg) {
 
 function showToast(text) {
     const toast = document.getElementById('toastBox');
+    if (!toast) return;
     document.getElementById('toastText').textContent = text;
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 3000);

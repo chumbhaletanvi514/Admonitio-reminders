@@ -1,43 +1,53 @@
-// 1. Guard check: Require valid token
-const token = localStorage.getItem('admonitio_token');
-const coordDataStr = localStorage.getItem('coordinator_data');
-
-if (!token || !coordDataStr) {
-    window.location.href = '/login';
-}
-
-let coordinator = JSON.parse(coordDataStr || '{}');
+let coordinator = {};
 let globalDevices = [];
 
-// 2. Set Coordinator Details in Top Bar
-function updateCoordinatorHeader() {
-    const avatarEl = document.getElementById('coordAvatar');
-    if (avatarEl) {
-        avatarEl.textContent = coordinator.name 
-            ? coordinator.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() 
-            : 'AK';
+// 1. Session verification & Header population
+async function initSession() {
+    try {
+        const res = await fetch('/api/auth/me');
+        if (!res.ok) {
+            window.location.href = '/login';
+            return;
+        }
+
+        const data = await res.json();
+        coordinator = data.coordinator;
+        updateCoordinatorHeader();
+
+        const dateEl = document.getElementById('currentDateText');
+        if (dateEl) {
+            dateEl.textContent = new Date().toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+
+        fetchDashboard();
+    } catch (err) {
+        window.location.href = '/login';
     }
 }
-updateCoordinatorHeader();
 
-document.getElementById('currentDateText').textContent = new Date().toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-});
+function updateCoordinatorHeader() {
+    const avatarEl = document.getElementById('coordAvatar');
+    if (avatarEl && coordinator.name) {
+        avatarEl.textContent = coordinator.name
+            .split(' ')
+            .map(n => n[0])
+            .join('')
+            .substring(0, 2)
+            .toUpperCase();
+    }
+}
 
-// 3. Fetch Dashboard Data from Backend
+// 2. Fetch Dashboard Data from Backend (Cookies sent automatically)
 async function fetchDashboard() {
     try {
-        const response = await fetch('/api/devices/dashboard', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
+        const response = await fetch('/api/devices/dashboard');
 
         if (response.status === 401) {
-            logout();
+            window.location.href = '/login';
             return;
         }
 
@@ -103,7 +113,7 @@ function renderDevices(devices) {
     });
 }
 
-// 4. Direct Internal Issue Modal Handlers (No QR scan needed)
+// 3. Direct Internal Issue Modal Handlers
 function openDirectIssueModal() {
     const select = document.getElementById('directDeviceSelect');
     if (select) {
@@ -126,10 +136,7 @@ async function handleDirectIssueSubmit(e) {
     try {
         const res = await fetch('/api/devices/direct-complaint', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ deviceCode, category, specification, severity })
         });
 
@@ -147,7 +154,7 @@ async function handleDirectIssueSubmit(e) {
     }
 }
 
-// 5. Profile Modal Handlers
+// 4. Profile Modal Handlers
 function openProfileModal() {
     const currentMail = coordinator.notificationEmail || coordinator.username || '';
     document.getElementById('editEmailInput').value = currentMail;
@@ -167,17 +174,13 @@ async function handleProfileSave(e) {
     try {
         const res = await fetch('/api/devices/profile-update', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ notificationEmail, newPassword })
         });
 
         const data = await res.json();
         if (data.success) {
             coordinator = { ...coordinator, ...data.coordinator };
-            localStorage.setItem('coordinator_data', JSON.stringify(coordinator));
             updateCoordinatorHeader();
             closeProfileModal();
             showToast('Profile settings saved successfully!');
@@ -191,15 +194,18 @@ async function handleProfileSave(e) {
 
 function showToast(text) {
     const toast = document.getElementById('dashToastBox');
+    if (!toast) return;
     toast.textContent = text;
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-function logout() {
-    localStorage.removeItem('admonitio_token');
-    localStorage.removeItem('coordinator_data');
-    window.location.href = '/login';
+async function logout() {
+    try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+    } finally {
+        window.location.href = '/login';
+    }
 }
 
 async function triggerManualReminderScan() {
@@ -215,5 +221,5 @@ async function triggerManualReminderScan() {
     }
 }
 
-// Initial fetch
-fetchDashboard();
+// Start
+initSession();

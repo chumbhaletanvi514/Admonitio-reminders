@@ -151,13 +151,10 @@
     </main>
 
     <script>
-        const token = localStorage.getItem('admonitio_token');
-        if (!token) window.location.href = '/login';
-
         async function loadQRs() {
             try {
                 const res = await fetch('/api/extinguishers/qr-codes', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    credentials: 'include'
                 });
 
                 if (res.status === 401) {
@@ -205,5 +202,3 @@
     </script>
 </body>
 </html>
-
-//http://localhost:5000/extinguisher-status.html?code=FE-A2-204

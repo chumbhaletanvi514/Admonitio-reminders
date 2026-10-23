@@ -137,70 +137,89 @@
         </div>
 
         <div class="hub-horizontal-row" id="categoryRow">
-            <!-- Populated dynamically via JS -->
+            <!-- Dynamically populated via /api/auth/me -->
         </div>
     </main>
 
     <script>
-        const token = localStorage.getItem('admonitio_token');
-        const coordDataStr = localStorage.getItem('coordinator_data');
+        async function initCategoryHub() {
+            try {
+                // Fetch verified session via HTTP-only cookie
+                const res = await fetch('/api/auth/me', {
+                    credentials: 'include'
+                });
 
-        if (!token || !coordDataStr) {
-            window.location.href = '/login';
-        }
+                if (!res.ok) {
+                    window.location.href = '/login';
+                    return;
+                }
 
-        const coordinator = JSON.parse(coordDataStr || '{}');
-        const avatarEl = document.getElementById('coordAvatar');
-        if (avatarEl) {
-            avatarEl.textContent = coordinator.name 
-                ? coordinator.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() 
-                : 'TN';
-        }
+                const data = await res.json();
+                const coordinator = data.coordinator;
 
-        if (coordinator.name) {
-            document.getElementById('welcomeGreeting').textContent = `Welcome, ${coordinator.name}`;
-        }
+                const avatarEl = document.getElementById('coordAvatar');
+                if (avatarEl && coordinator.name) {
+                    avatarEl.textContent = coordinator.name
+                        .split(' ')
+                        .map(n => n[0])
+                        .join('')
+                        .substring(0, 2)
+                        .toUpperCase();
+                }
 
-        const allowedCategories = coordinator.categories || ['WATER_COOLER'];
+                if (coordinator.name) {
+                    document.getElementById('welcomeGreeting').textContent = `Welcome, ${coordinator.name}`;
+                }
 
-        const CATEGORY_DEFINITIONS = [
-            {
-                key: 'WATER_COOLER',
-                title: 'Water Coolers',
-                icon: '💧',
-                url: '/dashboard.html'
-            },
-            {
-                key: 'FIRE_EXTINGUISHER',
-                title: 'Fire Extinguishers',
-                icon: '🧯',
-                url: '/extinguisher-dashboard.html'
+                const allowedCategories = coordinator.categories || ['WATER_COOLER'];
+
+                const CATEGORY_DEFINITIONS = [
+                    {
+                        key: 'WATER_COOLER',
+                        title: 'Water Coolers',
+                        icon: '💧',
+                        url: '/dashboard'
+                    },
+                    {
+                        key: 'FIRE_EXTINGUISHER',
+                        title: 'Fire Extinguishers',
+                        icon: '🧯',
+                        url: '/extinguisher-dashboard'
+                    }
+                ];
+
+                const container = document.getElementById('categoryRow');
+                container.innerHTML = '';
+
+                CATEGORY_DEFINITIONS.forEach(cat => {
+                    const hasAccess = allowedCategories.includes(cat.key);
+                    
+                    if (hasAccess) {
+                        const card = document.createElement('a');
+                        card.href = cat.url;
+                        card.className = 'hub-square-card';
+                        card.innerHTML = `
+                            <div class="hub-card-icon">${cat.icon}</div>
+                            <div class="hub-card-title">${cat.title}</div>
+                        `;
+                        container.appendChild(card);
+                    }
+                });
+            } catch (err) {
+                console.error('Session check failed:', err);
+                window.location.href = '/login';
             }
-        ];
-
-        const container = document.getElementById('categoryRow');
-        container.innerHTML = '';
-
-        CATEGORY_DEFINITIONS.forEach(cat => {
-            const hasAccess = allowedCategories.includes(cat.key);
-            
-            if (hasAccess) {
-                const card = document.createElement('a');
-                card.href = cat.url;
-                card.className = 'hub-square-card';
-                card.innerHTML = `
-                    <div class="hub-card-icon">${cat.icon}</div>
-                    <div class="hub-card-title">${cat.title}</div>
-                `;
-                container.appendChild(card);
-            }
-        });
-
-        function logout() {
-            localStorage.removeItem('admonitio_token');
-            localStorage.removeItem('coordinator_data');
-            window.location.href = '/login';
         }
+
+        async function logout() {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+            } finally {
+                window.location.href = '/login';
+            }
+        }
+
+        initCategoryHub();
     </script>
 </body>
 </html>

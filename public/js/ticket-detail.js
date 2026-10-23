@@ -1,36 +1,47 @@
-const token = localStorage.getItem('admonitio_token');
-const coordDataStr = localStorage.getItem('coordinator_data');
-
-if (!token || !coordDataStr) {
-    window.location.href = '/login';
-}
-
-let coordinator = JSON.parse(coordDataStr || '{}');
-
-function updateCoordinatorDisplay() {
-    const avatarEl = document.getElementById('coordAvatar');
-    if (avatarEl) {
-        avatarEl.textContent = coordinator.name 
-            ? coordinator.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() 
-            : 'AK';
-    }
-}
-updateCoordinatorDisplay();
-
+let coordinator = {};
 const urlParams = new URLSearchParams(window.location.search);
 const deviceCode = urlParams.get('code') || 'WC-A3-042';
 
 let currentTicket = null;
 let completedSteps = [];
 
+// 1. Session verification & Header population
+async function initTicketPage() {
+    try {
+        const res = await fetch('/api/auth/me');
+        if (!res.ok) {
+            window.location.href = '/login';
+            return;
+        }
+
+        const data = await res.json();
+        coordinator = data.coordinator;
+        updateCoordinatorDisplay();
+
+        loadWorkflowData();
+    } catch (err) {
+        window.location.href = '/login';
+    }
+}
+
+function updateCoordinatorDisplay() {
+    const avatarEl = document.getElementById('coordAvatar');
+    if (avatarEl && coordinator.name) {
+        avatarEl.textContent = coordinator.name
+            .split(' ')
+            .map(n => n[0])
+            .join('')
+            .substring(0, 2)
+            .toUpperCase();
+    }
+}
+
 async function loadWorkflowData() {
     try {
-        const res = await fetch(`/api/devices/detail/${deviceCode}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await fetch(`/api/devices/detail/${deviceCode}`);
 
         if (res.status === 401) {
-            logout();
+            window.location.href = '/login';
             return;
         }
 
@@ -141,10 +152,7 @@ async function handleStepOpen(stepNumber, dummyUrl) {
 
         const res = await fetch('/api/devices/step-complete', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
 
@@ -170,10 +178,7 @@ async function handleResetCooler() {
     try {
         const res = await fetch('/api/devices/reset-cooler', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ deviceCode: deviceCode })
         });
 
@@ -232,17 +237,13 @@ async function handleProfileSave(e) {
     try {
         const res = await fetch('/api/devices/profile-update', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ notificationEmail, newPassword })
         });
 
         const data = await res.json();
         if (data.success) {
             coordinator = { ...coordinator, ...data.coordinator };
-            localStorage.setItem('coordinator_data', JSON.stringify(coordinator));
             updateCoordinatorDisplay();
             closeProfileModal();
             alert('Profile updated successfully!');
@@ -254,10 +255,13 @@ async function handleProfileSave(e) {
     }
 }
 
-function logout() {
-    localStorage.removeItem('admonitio_token');
-    localStorage.removeItem('coordinator_data');
-    window.location.href = '/login';
+async function logout() {
+    try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+    } finally {
+        window.location.href = '/login';
+    }
 }
 
-loadWorkflowData();
+// Start
+initTicketPage();

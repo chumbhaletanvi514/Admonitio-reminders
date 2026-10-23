@@ -1,7 +1,10 @@
+
+
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
 const authRoutes = require('./routes/authRoutes');
 const deviceRoutes = require('./routes/deviceRoutes');
@@ -12,11 +15,16 @@ const cronService = require('./services/cronService');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static frontend files
+// Serve static frontend assets
 app.use(express.static(path.join(__dirname, '../public')));
 
 // API Routes
@@ -25,25 +33,18 @@ app.use('/api/devices', deviceRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/extinguishers', extinguisherRoutes);
 
-// TEST ENDPOINT: Manually triggers BOTH water cooler and extinguisher scans right now for demo/viva
 // Segregated Reminder Triggers
-
-// 1. Water Cooler Reminder Scan Only
 app.post('/api/reminders/trigger-water-coolers', async (req, res) => {
-  console.log('\n--- MANUAL WATER COOLER SCAN INITIATED ---');
   await cronService.runDailyIncompleteCheck();
   await cronService.runSevenDayVerificationCheck();
   res.json({ success: true, message: 'Water Cooler reminder scan complete!' });
 });
 
-// 2. Fire Extinguisher Expiry Scan Only
 app.post('/api/reminders/trigger-extinguishers', async (req, res) => {
-  console.log('\n--- MANUAL FIRE EXTINGUISHER SCAN INITIATED ---');
   await cronService.runExtinguisherExpiryCheck();
   res.json({ success: true, message: 'Fire Extinguisher reminder scan complete!' });
 });
 
-// Backward-compatible trigger (runs both if needed)
 app.post('/api/reminders/trigger-now', async (req, res) => {
   await cronService.runDailyIncompleteCheck();
   await cronService.runSevenDayVerificationCheck();
@@ -88,13 +89,9 @@ app.get('/', (req, res) => {
 cronService.startSchedulers();
 
 const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`\n======================================================`);
-  console.log(`🚀 Admonitio Server running successfully!`);
-  console.log(`👉 Local:   http://localhost:${PORT}`);
-  console.log(`👉 Network: http://127.0.0.1:${PORT}`);
-  console.log(`======================================================\n`);
+  console.log(`Server listening on http://localhost:${PORT}`);
 });
 
 server.on('error', (err) => {
-  console.error('Server startup error:', err);
+  console.error('Server error:', err);
 });
