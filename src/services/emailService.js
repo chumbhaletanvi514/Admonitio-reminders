@@ -4,7 +4,9 @@ const hasCredentials = process.env.EMAIL_USER && process.env.EMAIL_PASS;
 
 const transporter = hasCredentials
   ? nodemailer.createTransport({
-      service: process.env.EMAIL_SERVICE || 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true, // Use SSL over port 465 to bypass cloud firewall restrictions
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
