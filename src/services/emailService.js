@@ -24,6 +24,7 @@ exports.sendIncompleteStepsReminder = async (toEmail, coordinatorName, ticket, m
   const missingListText = missingSteps.map(s => `• ${stepLabels[s]}`).join('\n');
   const completedCount = ticket.completedSteps.length;
   const remainingCount = missingSteps.length;
+  const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
 
   const subject = `⚠️ Action Required: Ticket #${ticket.ticketNumber} (${remainingCount} Steps Pending)`;
   const bodyText = `
@@ -39,7 +40,7 @@ The following ${remainingCount} step(s) are still pending:
 ${missingListText}
 
 Please visit your portal to complete the remaining steps so repairs can proceed:
-http://localhost:5000/ticket-detail?code=${ticket.device.deviceCode}
+${baseUrl}/ticket-detail?code=${ticket.device.deviceCode}
 
 — Admonitio Automated Maintenance Reminder System
   `;
@@ -66,6 +67,7 @@ http://localhost:5000/ticket-detail?code=${ticket.device.deviceCode}
 
 // Existing Water Cooler 7-Day Verification Reminder
 exports.sendSevenDayVerificationReminder = async (toEmail, coordinatorName, ticket) => {
+  const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
   const subject = `🔍 7-Day Ground Check: Has #${ticket.ticketNumber} Been Physically Repaired?`;
   const bodyText = `
 Hello ${coordinatorName},
@@ -79,7 +81,7 @@ Please verify if the unit is now functioning on campus:
 • If still broken: Revisit the technician dispatch.
 
 Review and confirm here:
-http://localhost:5000/ticket-detail?code=${ticket.device.deviceCode}
+${baseUrl}/ticket-detail?code=${ticket.device.deviceCode}
 
 — Admonitio Automated Maintenance Reminder System
   `;
@@ -105,7 +107,7 @@ http://localhost:5000/ticket-detail?code=${ticket.device.deviceCode}
 };
 
 // ============================================================
-// NEW: Fire Extinguisher Expiry Escalation Reminder
+// Fire Extinguisher Expiry Escalation Reminder
 // Escalation intervals: 15, 10, 5, 4, 3, 2, 1 days
 // ============================================================
 exports.sendExtinguisherExpiryReminder = async (toEmail, coordinatorName, extinguisher, daysRemaining) => {
@@ -115,7 +117,8 @@ exports.sendExtinguisherExpiryReminder = async (toEmail, coordinatorName, exting
     year: 'numeric'
   });
 
-  const confirmUrl = `http://localhost:5000/api/extinguishers/confirm-replaced?deviceCode=${extinguisher.deviceCode}`;
+  const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
+  const confirmUrl = `${baseUrl}/api/extinguishers/confirm-replaced?deviceCode=${extinguisher.deviceCode}`;
 
   const urgencyTag = daysRemaining <= 3 ? '🚨 CRITICAL SAFETY ALERT' : '⚠️ URGENT REMINDER';
   const subject = `${urgencyTag}: Fire Extinguisher ${extinguisher.name} (${extinguisher.deviceCode}) Expires in ${daysRemaining} Day${daysRemaining === 1 ? '' : 's'}!`;
@@ -140,7 +143,7 @@ If this extinguisher has ALREADY been replaced/certified, click the confirmation
 👉 One-Click Confirmation: ${confirmUrl}
 
 To inspect all campus fire extinguishers or modify dates manually:
-http://localhost:5000/extinguisher-dashboard
+${baseUrl}/extinguisher-dashboard
 
 — Admonitio Campus Safety & Compliance System
   `;

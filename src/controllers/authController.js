@@ -39,7 +39,7 @@ exports.login = async (req, res) => {
     res.cookie('admonitio_token', token, {
       httpOnly: true,
       sameSite: 'lax',
-      secure: false, // Must be false for local development on http://localhost
+      secure: process.env.NODE_ENV === 'production', // Dynamic for local vs cloud
       path: '/',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     });
