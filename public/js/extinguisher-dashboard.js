@@ -111,7 +111,7 @@ function renderExtinguishers(devices) {
                         ✏️ Edit Date
                     </button>
                     <button class="btn-quick-renew" onclick="quickRenewOneYear('${dev.deviceCode}')">
-                         Replace (+1 Yr)
+                         Replace 
                     </button>
                 </div>
             </div>

@@ -153,7 +153,6 @@ exports.createDirectComplaint = async (req, res) => {
     const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const count = await prisma.ticket.count();
     const ticketNumber = `TKT-${todayStr}-${String(count + 1).padStart(3, '0')}`;
-
     const newTicket = await prisma.ticket.create({
       data: {
         ticketNumber,

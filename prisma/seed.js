@@ -15,7 +15,7 @@ async function main() {
     },
     create: {
       username: 'tanvi@123',
-      notificationEmail: 'tanvi@123',
+      notificationEmail: 'admonitiotest@gmail.com',
       password: hashedPassword,
       name: 'Tanvi',
       categories: ['WATER_COOLER', 'FIRE_EXTINGUISHER'],

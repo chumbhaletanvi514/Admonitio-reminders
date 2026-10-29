@@ -89,7 +89,7 @@ app.get('/', (req, res) => {
 cronService.startSchedulers();
 
 const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server listening on http://localhost:${PORT}`);
+  console.log(`Server listening on port ${PORT}`);
 });
 
 server.on('error', (err) => {
